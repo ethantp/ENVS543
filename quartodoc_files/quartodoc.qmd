@@ -197,7 +197,7 @@ first_day <- as.Date("2021-08-25")
 How many days was it between then and now?
 
 ```{r}
-current_date <- Sys.Date()
+current_date <- Sys.Date() #date
 
 days <- as.numeric(current_date - first_day)
 
