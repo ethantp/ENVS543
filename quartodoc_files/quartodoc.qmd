@@ -1,12 +1,7 @@
 ---
 title: "Data Types In Class Activity"
 author: "Ethan Pisterman"
-format: 
-  html:
-    code-tools: true
-    toc: false
-    exec: true
-    echo: true
+output: html_document
 ---
 
 ## Overview & Objective
