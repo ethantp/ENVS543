@@ -1,0 +1,207 @@
+---
+title: "Data Types In Class Activity"
+author: "Ethan Pisterman"
+output: html_document
+---
+
+## Overview & Objective 
+
+This is the first foray into how to actually use `R` and focuses on understanding some of the most basic data types.
+
+## Student Learning Objectives
+
+At the end of this topic, you should be able to:  
+
+ - Describe characteristics of numeric, character, logical, and date data types.  
+ - Use introspection and coercion for basic data types. 
+ - Perform operations on included data types.  
+
+
+## Activity
+
+The following markdown has a set of questions followed by a chunk for you to put in code to answer the question.  Fill them all out as indicated.
+
+
+### Numeric Data
+
+What is your favorite number
+
+```{r}
+favnum <- 11
+cat(favnum)
+```
+
+
+The ancient Egyptians were quite cleaver at engineering and building things.  The [Rhind Papyrus](https://en.wikipedia.org/wiki/Rhind_Mathematical_Papyrus), which dates to 1650 BCE, indicates that they estimated the ratio between the circumfrence and the diameter of a circle to be 256 divided by 81.  Mathematically is this more or less than what we estimate $\pi$ as?  What is the magnitude of the difference?
+
+```{r}
+library(knitr) 
+ratio <- 256 / 81
+pi. <- pi
+difference <- abs(ratio - pi.)
+
+results <- list(
+  "Ratio (256/81)" = ratio,
+  "Pi value" = pi.,
+  "Magnitude of the Difference" = difference)
+
+formatted_results <- sapply(names(results), function(name) {
+  paste(name, ":", results[[name]])})
+cat(formatted_results, sep = "\n")
+
+```
+
+
+
+The function `sqrt()` provides you the square root of a number. Assign a variable named `root2` to hold the value of `sqrt(2)`.
+
+```{r}
+root2 <- sqrt(2)
+```
+
+
+What is the value contained in the variable below named `sqrOfNegative2`?  Explain the result and make any modifications necessary to be more explicit.
+
+```{r}
+sqrOfNegative2 <- -2^2
+
+cat("Value stored in sqrOfNegative2:\n", sqrOfNegative2, "\n\n")
+cat("Explanation:\nThe code initally said -4, because the exponent function has higher precedence than the minus (PEMDAS). Consequently, the calculation is seen as -(2^2), which results in -4.\n")
+```
+
+### Character Data
+
+Create variables for your first and last names (and give them proper variable names).
+
+```{r}
+first_name <- "Ethan"
+last_name <- "Pisterman"
+```
+
+
+Use the functions `print()` and `cat()` to display these values.  Are these two functions identical?
+
+```{r}
+print(paste("First Name:", first_name))
+print(paste("Last Name:", last_name))
+print(paste("Full Name:", paste(first_name, last_name)))
+```
+
+```{r}
+cat("First Name:", first_name, "\n")
+cat("Last Name:", last_name, "\n")
+cat("Full Name:", paste(first_name, last_name), "\n")
+```
+
+Create a new variable, `properName`, which is your last name, a commma and space, followed by your first name.  Use the variables above instead of writing out the letters for your names.
+
+```{r}
+properName <- paste(last_name, first_name,
+                    sep = ", ")
+cat(properName)
+```
+
+
+The function `nchar()` returns the number of characters in a character variable.  Use it on your `properName`.
+
+```{r}
+num_chars <- nchar(properName)
+cat(num_chars)
+```
+
+
+### Logical Data 
+
+Create the variables `trueResult` and `falseResult` and assign them the proper logical values for R.
+
+```{r}
+trueResult <- TRUE
+falseResult <- FALSE
+```
+
+
+Using the variables `trueResult` and `falseResult` demonstrate logical operators for equality, inequality, and negation.
+
+```{r}
+equal <- trueResult == falseResult
+
+inequal <- trueResult != falseResult
+
+negation_true <- !trueResult
+negation_false <- !falseResult
+
+equal
+inequal
+negation_true
+negation_false
+```
+
+
+Using the variables `trueResult` and `falseResult` demonstrate AND operator in R for all pairwise combinations (e.g, for the and operator, show how to evaluate `trueResult` and `trueResult`, `trueResult` and `falseResult`, `falseResult` and `trueResult`, and `falseResult` and `falseResult`)
+
+```{r}
+and_true_true <- trueResult & trueResult
+and_true_false <- trueResult & falseResult
+and_false_true <- falseResult & trueResult
+and_false_false <- falseResult & falseResult
+
+and_true_true
+and_true_false
+and_false_true
+and_false_false
+```
+
+Do the same as the previous question for the approriate OR operator.
+
+```{r}
+or_true_true <- trueResult | trueResult
+or_true_false <- trueResult | falseResult
+or_false_true <- falseResult | trueResult
+or_false_false <- falseResult | falseResult
+
+or_true_true
+or_true_false
+or_false_true
+or_false_false
+```
+
+
+
+
+In the example above for the square root, the variable `root2` has the square root of the number $2$.  Test the equality (e.g., use the `==` operator) of this varible times itself to the value $2$. Discuss this with your neighbor.  Does this make sense?
+
+```{r}
+equality_test <- (root2 * root2) == 2
+
+equality_test
+
+cat("In theory, no it does not make sense\n")
+cat("Test should be TRUE\n")
+cat("Rounding errors in R can affect floating-point comparisons.\n")
+cat("Use the `all.equal()` function for more accurate comparisons of floating points.\n")
+
+```
+
+
+
+### Dates
+
+
+When did you first become a college student?  Create a variable representing this date.
+
+```{r}
+first_day <- as.Date("2021-08-25") 
+```
+
+
+How many days was it between then and now?
+
+```{r}
+current_date <- Sys.Date()
+
+days <- as.numeric(current_date - first_day)
+
+
+cat(days,
+    "days\n")
+```
