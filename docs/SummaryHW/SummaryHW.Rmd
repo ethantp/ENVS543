@@ -1,0 +1,48 @@
+---
+title: "Annual AQI by County"
+author: "Ethan Pisterman"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+---
+
+## Abstract
+
+
+## Introduction
+Air quality is a detrimental factor influencing the health of everyone daily. In urban areas, like Richmond, air pollution tends to be elevated due to a variety of human activities accelerated by increased populations inside cities compared to surrounding counties. 
+
+This analysis focuses on data obtained from the EPA Air Database, and highlights annual AQI readings by county. The dataset from 2023 includes counts of days based on their severity levels. This scale spans from good, moderate, unhealthy for sensitive groups, unhealthy, very unhealthy, all the way to hazardous. The data also includes counts for days each county experienced pollution, separated by the days NO2, days Ozone, days PM2.5, and days PM10. These pollutants contribute to respiratory issues and other adverse health effects, meaning long term trends may be indicative of future community health.
+
+## Methods
+
+
+
+
+## Results
+
+```{r}
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+aqi <-read.csv("annual_aqi_by_county_2023.csv")
+
+
+summary_us <- aqi %>%
+  group_by(State) %>%
+  summarize("# Good Days" = mean(Good.Days, na.rm = TRUE)) %>%
+  arrange(desc("# Good Days")) %>%
+  mutate(rank = row_number()) 
+
+summary_us %>%
+  kbl(caption = "Average Number of Good Days by State") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+
+```
+
+
+
+
+
