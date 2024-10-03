@@ -12,7 +12,7 @@
 <meta name="author" content="Ethan Pisterman" />
 
 
-<title>Annual AQI by County</title>
+<title>US States with the Best Air Quality</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -573,7 +573,7 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Annual AQI by County</h1>
+<h1 class="title toc-ignore">US States with the Best Air Quality</h1>
 <h4 class="author">Ethan Pisterman</h4>
 
 </div>
@@ -584,11 +584,25 @@ display: none;
 <li><a href="#introduction" id="toc-introduction">Introduction</a></li>
 <li><a href="#methods" id="toc-methods">Methods</a></li>
 <li><a href="#results" id="toc-results">Results</a></li>
+<li><a href="#references" id="toc-references">References</a></li>
 </ul>
 </div>
 
 <div id="abstract" class="section level2">
 <h2>Abstract</h2>
+<p>This document analyzes air quality across the United States using
+data collected from the 2023 Annual AQI by County dataset. The data
+includes the counts of days per air quality indicator such as carbon
+monoxide (CO), nitrogen dioxide (NO2), ozone (O3), particulate matter
+(PM2.5 and PM10), and the number of days on the scale of air quality
+from good to hazardous, but for the fear of a huge summary table only
+the number of “good days” is used to examine the average best air
+quality. Leveraging the dplyr package, the data was grouped together by
+state and ranked on a scale displaying the state with the most days with
+clean air at the top, being Hawaii. Further analysis displayed that
+among the 5 different components of air pollution, only two types, ozone
+and PM2.5, were calculated as the most prominent source of air pollution
+across the Unites States.</p>
 </div>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
@@ -596,663 +610,715 @@ display: none;
 everyone daily. In urban areas, like Richmond, air pollution tends to be
 elevated due to a variety of human activities accelerated by increased
 populations inside cities compared to surrounding counties.</p>
-<p>This analysis focuses on data obtained from the EPA Air Database, and
-highlights annual AQI readings by county. The dataset from 2023 includes
-counts of days based on their severity levels. This scale spans from
-good, moderate, unhealthy for sensitive groups, unhealthy, very
-unhealthy, all the way to hazardous. The data also includes counts for
-days each county experienced pollution, separated by the days NO2, days
-Ozone, days PM2.5, and days PM10. These pollutants contribute to
+<p>This analysis focuses on data obtained from the EPA Air Data
+Database, and highlights annual AQI readings by county. The dataset from
+2023 includes counts of days based on their severity levels. This scale
+spans from good, moderate, unhealthy for sensitive groups, unhealthy,
+very unhealthy, all the way to hazardous. The data also includes counts
+for days each county experienced pollution, separated by the days NO2,
+days Ozone, days PM2.5, and days PM10. These pollutants contribute to
 respiratory issues and other adverse health effects, meaning long term
 trends may be indicative of future community health.</p>
 </div>
 <div id="methods" class="section level2">
 <h2>Methods</h2>
+<p>This table was sourced using data provided by the EPA Air Database,
+which provides county level annual air quality index (AQI) metrics in a
+.csv file downloaded to my repository. The data was then processed using
+the R programming language, with assistance from the dplyr data
+manipulation and summarization package. Key steps included were:</p>
+<ul>
+<li>Grouped the data by state</li>
+<li>Calculated mean values for the days with good air quality levels and
+mean days with high levels of CO, NO2, Ozone, PM2.5, PM10.</li>
+<li>Identified the predominant pollutant type per state by selecting the
+pollutant with the highest mean value.</li>
+<li>Summarized the results in tabular format using the knitr and
+kableExtra packages to render the tables into my markdown.</li>
+</ul>
 </div>
 <div id="results" class="section level2">
 <h2>Results</h2>
-<pre class="r"><code>library(dplyr)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;dplyr&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<pre class="r"><code>library(knitr)
-library(kableExtra)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;kableExtra&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
-## 
-##     group_rows</code></pre>
-<pre class="r"><code>aqi &lt;-read.csv(&quot;annual_aqi_by_county_2023.csv&quot;)
+<pre class="r"><code>library(dplyr)
+library(knitr)
+library(kableExtra)
 
+aqi &lt;-read.csv(&quot;annual_aqi_by_county_2023.csv&quot;)
 
 summary_us &lt;- aqi %&gt;%
   group_by(State) %&gt;%
-  summarize(&quot;# Good Days&quot; = mean(Good.Days, na.rm = TRUE)) %&gt;%
-  arrange(desc(&quot;# Good Days&quot;)) %&gt;%
-  mutate(rank = row_number()) 
+  summarize(Good_Days = mean(Good.Days, na.rm = TRUE),
+            Days_CO = mean(Days.CO, na.rm = TRUE),
+            Days_NO2 = mean(Days.NO2, na.rm = TRUE),
+            Days_Ozone = mean(Days.Ozone, na.rm = TRUE),
+            Days_PM2.5 = mean(Days.PM2.5, na.rm = TRUE),
+            Days_PM10 = mean(Days.PM10, na.rm = TRUE)) %&gt;%
+  mutate(State_Pollution_Type = case_when(
+      Days_CO == pmax(Days_CO, Days_NO2, Days_Ozone, Days_PM2.5, Days_PM10) ~
+        &quot;CO&quot;,
+      Days_NO2 == pmax(Days_CO, Days_NO2, Days_Ozone, Days_PM2.5, Days_PM10) ~
+        &quot;NO2&quot;,
+      Days_Ozone == pmax(Days_CO, Days_NO2, Days_Ozone, Days_PM2.5, Days_PM10) ~
+        &quot;Ozone&quot;,
+      Days_PM2.5 == pmax(Days_CO, Days_NO2, Days_Ozone, Days_PM2.5, Days_PM10) ~
+        &quot;PM2.5&quot;,
+      Days_PM10 == pmax(Days_CO, Days_NO2, Days_Ozone, Days_PM2.5, Days_PM10) ~
+        &quot;PM10&quot;)) %&gt;%
+  select(State,Good_Days, State_Pollution_Type) %&gt;%  
+  arrange(desc(Good_Days))
+
 
 summary_us %&gt;%
-  kbl(caption = &quot;Average Number of Good Days by State&quot;) %&gt;%
-  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;))</code></pre>
-<table class="table table-striped table-hover table-condensed" style="color: black; margin-left: auto; margin-right: auto;">
+  rename(
+    &quot;Good Days&quot; = Good_Days,
+    &quot;Annual Pollutant Type&quot; = State_Pollution_Type) %&gt;%
+  kbl(caption = &quot;States with Best AQI and Majority Air Pollutant&quot;) %&gt;%
+  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;), 
+                full_width = FALSE, 
+                position = &quot;center&quot;) %&gt;%
+  column_spec(1, width = &quot;100px&quot;) %&gt;%  
+  column_spec(2, width = &quot;200px&quot;) %&gt;%  
+  footnote(general = &quot;Pollutant type based on maximum pollutant days per year.&quot;) %&gt;%
+  add_header_above(c(&quot; &quot; = 1, &quot; &quot; = 1, &quot; &quot; = 1))</code></pre>
+<table class="table table-striped table-hover table-condensed" style="color: black; width: auto !important; margin-left: auto; margin-right: auto;border-bottom: 0;">
 <caption>
-Average Number of Good Days by State
+States with Best AQI and Majority Air Pollutant
 </caption>
 <thead>
+<tr>
+<th style="empty-cells: hide;border-bottom:hidden;" colspan="1">
+</th>
+<th style="empty-cells: hide;border-bottom:hidden;" colspan="1">
+</th>
+<th style="empty-cells: hide;border-bottom:hidden;" colspan="1">
+</th>
+</tr>
 <tr>
 <th style="text-align:left;">
 State
 </th>
 <th style="text-align:right;">
-# Good Days
+Good Days
 </th>
-<th style="text-align:right;">
-rank
+<th style="text-align:left;">
+Annual Pollutant Type
 </th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left;">
-Alabama
-</td>
-<td style="text-align:right;">
-201.8667
-</td>
-<td style="text-align:right;">
-1
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Alaska
-</td>
-<td style="text-align:right;">
-235.3750
-</td>
-<td style="text-align:right;">
-2
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Arizona
-</td>
-<td style="text-align:right;">
-233.8462
-</td>
-<td style="text-align:right;">
-3
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Arkansas
-</td>
-<td style="text-align:right;">
-164.2727
-</td>
-<td style="text-align:right;">
-4
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-California
-</td>
-<td style="text-align:right;">
-208.1538
-</td>
-<td style="text-align:right;">
-5
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Colorado
-</td>
-<td style="text-align:right;">
-209.0000
-</td>
-<td style="text-align:right;">
-6
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Connecticut
-</td>
-<td style="text-align:right;">
-234.0000
-</td>
-<td style="text-align:right;">
-7
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Country Of Mexico
-</td>
-<td style="text-align:right;">
-151.0000
-</td>
-<td style="text-align:right;">
-8
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Delaware
-</td>
-<td style="text-align:right;">
-197.6667
-</td>
-<td style="text-align:right;">
-9
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-District Of Columbia
-</td>
-<td style="text-align:right;">
-189.0000
-</td>
-<td style="text-align:right;">
-10
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Florida
-</td>
-<td style="text-align:right;">
-260.8421
-</td>
-<td style="text-align:right;">
-11
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Georgia
-</td>
-<td style="text-align:right;">
-184.1724
-</td>
-<td style="text-align:right;">
-12
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
+<td style="text-align:left;width: 100px; ">
 Hawaii
 </td>
-<td style="text-align:right;">
+<td style="text-align:right;width: 200px; ">
 339.0000
 </td>
-<td style="text-align:right;">
-13
+<td style="text-align:left;">
+PM2.5
 </td>
 </tr>
 <tr>
-<td style="text-align:left;">
-Idaho
-</td>
-<td style="text-align:right;">
-265.1053
-</td>
-<td style="text-align:right;">
-14
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Illinois
-</td>
-<td style="text-align:right;">
-190.7391
-</td>
-<td style="text-align:right;">
-15
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Indiana
-</td>
-<td style="text-align:right;">
-234.2121
-</td>
-<td style="text-align:right;">
-16
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Iowa
-</td>
-<td style="text-align:right;">
-141.6875
-</td>
-<td style="text-align:right;">
-17
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Kansas
-</td>
-<td style="text-align:right;">
-209.8182
-</td>
-<td style="text-align:right;">
-18
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Kentucky
-</td>
-<td style="text-align:right;">
-222.9600
-</td>
-<td style="text-align:right;">
-19
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Louisiana
-</td>
-<td style="text-align:right;">
-206.5455
-</td>
-<td style="text-align:right;">
-20
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Maine
-</td>
-<td style="text-align:right;">
-282.9091
-</td>
-<td style="text-align:right;">
-21
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Maryland
-</td>
-<td style="text-align:right;">
-242.1250
-</td>
-<td style="text-align:right;">
-22
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Massachusetts
-</td>
-<td style="text-align:right;">
-271.0769
-</td>
-<td style="text-align:right;">
-23
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Michigan
-</td>
-<td style="text-align:right;">
-197.7778
-</td>
-<td style="text-align:right;">
-24
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Minnesota
-</td>
-<td style="text-align:right;">
-212.0952
-</td>
-<td style="text-align:right;">
-25
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Mississippi
-</td>
-<td style="text-align:right;">
-185.7000
-</td>
-<td style="text-align:right;">
-26
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Missouri
-</td>
-<td style="text-align:right;">
-191.8095
-</td>
-<td style="text-align:right;">
-27
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Montana
-</td>
-<td style="text-align:right;">
-229.6957
-</td>
-<td style="text-align:right;">
-28
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Nebraska
-</td>
-<td style="text-align:right;">
-258.0000
-</td>
-<td style="text-align:right;">
-29
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Nevada
-</td>
-<td style="text-align:right;">
-266.5556
-</td>
-<td style="text-align:right;">
-30
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-New Hampshire
-</td>
-<td style="text-align:right;">
-281.4286
-</td>
-<td style="text-align:right;">
-31
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-New Jersey
-</td>
-<td style="text-align:right;">
-230.6667
-</td>
-<td style="text-align:right;">
-32
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-New Mexico
-</td>
-<td style="text-align:right;">
-208.3750
-</td>
-<td style="text-align:right;">
-33
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-New York
-</td>
-<td style="text-align:right;">
-281.2963
-</td>
-<td style="text-align:right;">
-34
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-North Carolina
-</td>
-<td style="text-align:right;">
-228.2286
-</td>
-<td style="text-align:right;">
-35
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-North Dakota
-</td>
-<td style="text-align:right;">
-243.1111
-</td>
-<td style="text-align:right;">
-36
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Ohio
-</td>
-<td style="text-align:right;">
-200.2432
-</td>
-<td style="text-align:right;">
-37
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Oklahoma
-</td>
-<td style="text-align:right;">
-181.1905
-</td>
-<td style="text-align:right;">
-38
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Oregon
-</td>
-<td style="text-align:right;">
-259.9524
-</td>
-<td style="text-align:right;">
-39
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Pennsylvania
-</td>
-<td style="text-align:right;">
-214.4737
-</td>
-<td style="text-align:right;">
-40
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Puerto Rico
-</td>
-<td style="text-align:right;">
-158.7500
-</td>
-<td style="text-align:right;">
-41
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Rhode Island
-</td>
-<td style="text-align:right;">
-263.6667
-</td>
-<td style="text-align:right;">
-42
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-South Carolina
-</td>
-<td style="text-align:right;">
-209.4286
-</td>
-<td style="text-align:right;">
-43
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-South Dakota
-</td>
-<td style="text-align:right;">
-270.1000
-</td>
-<td style="text-align:right;">
-44
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Tennessee
-</td>
-<td style="text-align:right;">
-233.8261
-</td>
-<td style="text-align:right;">
-45
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Texas
-</td>
-<td style="text-align:right;">
-226.5778
-</td>
-<td style="text-align:right;">
-46
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Utah
-</td>
-<td style="text-align:right;">
-218.0625
-</td>
-<td style="text-align:right;">
-47
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Vermont
-</td>
-<td style="text-align:right;">
-232.0000
-</td>
-<td style="text-align:right;">
-48
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Virgin Islands
-</td>
-<td style="text-align:right;">
-95.0000
-</td>
-<td style="text-align:right;">
-49
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Virginia
-</td>
-<td style="text-align:right;">
-234.6333
-</td>
-<td style="text-align:right;">
-50
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Washington
-</td>
-<td style="text-align:right;">
-274.1613
-</td>
-<td style="text-align:right;">
-51
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-West Virginia
-</td>
-<td style="text-align:right;">
-216.1538
-</td>
-<td style="text-align:right;">
-52
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Wisconsin
-</td>
-<td style="text-align:right;">
-190.0345
-</td>
-<td style="text-align:right;">
-53
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
+<td style="text-align:left;width: 100px; ">
 Wyoming
 </td>
-<td style="text-align:right;">
+<td style="text-align:right;width: 200px; ">
 301.0556
 </td>
-<td style="text-align:right;">
-54
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Maine
+</td>
+<td style="text-align:right;width: 200px; ">
+282.9091
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+New Hampshire
+</td>
+<td style="text-align:right;width: 200px; ">
+281.4286
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+New York
+</td>
+<td style="text-align:right;width: 200px; ">
+281.2963
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Washington
+</td>
+<td style="text-align:right;width: 200px; ">
+274.1613
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Massachusetts
+</td>
+<td style="text-align:right;width: 200px; ">
+271.0769
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+South Dakota
+</td>
+<td style="text-align:right;width: 200px; ">
+270.1000
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Nevada
+</td>
+<td style="text-align:right;width: 200px; ">
+266.5556
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Idaho
+</td>
+<td style="text-align:right;width: 200px; ">
+265.1053
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Rhode Island
+</td>
+<td style="text-align:right;width: 200px; ">
+263.6667
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Florida
+</td>
+<td style="text-align:right;width: 200px; ">
+260.8421
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Oregon
+</td>
+<td style="text-align:right;width: 200px; ">
+259.9524
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Nebraska
+</td>
+<td style="text-align:right;width: 200px; ">
+258.0000
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+North Dakota
+</td>
+<td style="text-align:right;width: 200px; ">
+243.1111
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Maryland
+</td>
+<td style="text-align:right;width: 200px; ">
+242.1250
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Alaska
+</td>
+<td style="text-align:right;width: 200px; ">
+235.3750
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Virginia
+</td>
+<td style="text-align:right;width: 200px; ">
+234.6333
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Indiana
+</td>
+<td style="text-align:right;width: 200px; ">
+234.2121
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Connecticut
+</td>
+<td style="text-align:right;width: 200px; ">
+234.0000
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Arizona
+</td>
+<td style="text-align:right;width: 200px; ">
+233.8462
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Tennessee
+</td>
+<td style="text-align:right;width: 200px; ">
+233.8261
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Vermont
+</td>
+<td style="text-align:right;width: 200px; ">
+232.0000
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+New Jersey
+</td>
+<td style="text-align:right;width: 200px; ">
+230.6667
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Montana
+</td>
+<td style="text-align:right;width: 200px; ">
+229.6957
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+North Carolina
+</td>
+<td style="text-align:right;width: 200px; ">
+228.2286
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Texas
+</td>
+<td style="text-align:right;width: 200px; ">
+226.5778
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Kentucky
+</td>
+<td style="text-align:right;width: 200px; ">
+222.9600
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Utah
+</td>
+<td style="text-align:right;width: 200px; ">
+218.0625
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+West Virginia
+</td>
+<td style="text-align:right;width: 200px; ">
+216.1538
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Pennsylvania
+</td>
+<td style="text-align:right;width: 200px; ">
+214.4737
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Minnesota
+</td>
+<td style="text-align:right;width: 200px; ">
+212.0952
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Kansas
+</td>
+<td style="text-align:right;width: 200px; ">
+209.8182
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+South Carolina
+</td>
+<td style="text-align:right;width: 200px; ">
+209.4286
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Colorado
+</td>
+<td style="text-align:right;width: 200px; ">
+209.0000
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+New Mexico
+</td>
+<td style="text-align:right;width: 200px; ">
+208.3750
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+California
+</td>
+<td style="text-align:right;width: 200px; ">
+208.1538
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Louisiana
+</td>
+<td style="text-align:right;width: 200px; ">
+206.5455
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Alabama
+</td>
+<td style="text-align:right;width: 200px; ">
+201.8667
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Ohio
+</td>
+<td style="text-align:right;width: 200px; ">
+200.2432
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Michigan
+</td>
+<td style="text-align:right;width: 200px; ">
+197.7778
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Delaware
+</td>
+<td style="text-align:right;width: 200px; ">
+197.6667
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Missouri
+</td>
+<td style="text-align:right;width: 200px; ">
+191.8095
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Illinois
+</td>
+<td style="text-align:right;width: 200px; ">
+190.7391
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Wisconsin
+</td>
+<td style="text-align:right;width: 200px; ">
+190.0345
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+District Of Columbia
+</td>
+<td style="text-align:right;width: 200px; ">
+189.0000
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Mississippi
+</td>
+<td style="text-align:right;width: 200px; ">
+185.7000
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Georgia
+</td>
+<td style="text-align:right;width: 200px; ">
+184.1724
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Oklahoma
+</td>
+<td style="text-align:right;width: 200px; ">
+181.1905
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Arkansas
+</td>
+<td style="text-align:right;width: 200px; ">
+164.2727
+</td>
+<td style="text-align:left;">
+Ozone
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Puerto Rico
+</td>
+<td style="text-align:right;width: 200px; ">
+158.7500
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Country Of Mexico
+</td>
+<td style="text-align:right;width: 200px; ">
+151.0000
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Iowa
+</td>
+<td style="text-align:right;width: 200px; ">
+141.6875
+</td>
+<td style="text-align:left;">
+PM2.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 100px; ">
+Virgin Islands
+</td>
+<td style="text-align:right;width: 200px; ">
+95.0000
+</td>
+<td style="text-align:left;">
+PM2.5
 </td>
 </tr>
 </tbody>
+<tfoot>
+<tr>
+<td style="padding: 0; " colspan="100%">
+<span style="font-style: italic;">Note: </span>
+</td>
+</tr>
+<tr>
+<td style="padding: 0; " colspan="100%">
+<sup></sup> Pollutant type based on maximum pollutant days per year.
+</td>
+</tr>
+</tfoot>
 </table>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<p>US Environmental Protection Agency. Air Quality System Data Mart
+[internet database] available via <a href="https://19january2021snapshot.epa.gov/airdata" class="uri">https://19january2021snapshot.epa.gov/airdata</a>.</p>
 </div>
 
 

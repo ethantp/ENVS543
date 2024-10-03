@@ -1,5 +1,5 @@
----
-title: "Annual AQI by County"
+--- 
+title: "US States with the Best Air Quality"
 author: "Ethan Pisterman"
 output:
   html_document:
@@ -8,41 +8,73 @@ output:
 ---
 
 ## Abstract
+This document analyzes air quality across the United States using data collected from the 2023 Annual AQI by County dataset. The data includes the counts of days per air quality indicator such as carbon monoxide (CO), nitrogen dioxide (NO2), ozone (O3), particulate matter (PM2.5 and PM10), and the number of days on the scale of air quality from good to hazardous, but for the fear of a huge summary table only the number of "good days" is used to examine the average best air quality. Leveraging the dplyr package, the data was grouped together by state and ranked on a scale displaying the state with the most days with clean air at the top, being Hawaii. Further analysis displayed that among the 5 different components of air pollution, only two types, ozone and PM2.5, were calculated as the most prominent source of air pollution across the Unites States.
+
 
 
 ## Introduction
 Air quality is a detrimental factor influencing the health of everyone daily. In urban areas, like Richmond, air pollution tends to be elevated due to a variety of human activities accelerated by increased populations inside cities compared to surrounding counties. 
 
-This analysis focuses on data obtained from the EPA Air Database, and highlights annual AQI readings by county. The dataset from 2023 includes counts of days based on their severity levels. This scale spans from good, moderate, unhealthy for sensitive groups, unhealthy, very unhealthy, all the way to hazardous. The data also includes counts for days each county experienced pollution, separated by the days NO2, days Ozone, days PM2.5, and days PM10. These pollutants contribute to respiratory issues and other adverse health effects, meaning long term trends may be indicative of future community health.
+This analysis focuses on data obtained from the EPA Air Data Database, and highlights annual AQI readings by county. The dataset from 2023 includes counts of days based on their severity levels. This scale spans from good, moderate, unhealthy for sensitive groups, unhealthy, very unhealthy, all the way to hazardous. The data also includes counts for days each county experienced pollution, separated by the days NO2, days Ozone, days PM2.5, and days PM10. These pollutants contribute to respiratory issues and other adverse health effects, meaning long term trends may be indicative of future community health.
 
 ## Methods
+This table was sourced using data provided by the EPA Air Database, which provides county level annual air quality index (AQI) metrics in a .csv file downloaded to my repository. The data was then processed using the R programming language, with assistance from the dplyr data manipulation and summarization package. Key steps included were:
 
+- Grouped the data by state
+- Calculated mean values for the days with good air quality levels and mean days with high levels of CO, NO2, Ozone, PM2.5, PM10.
+- Identified the predominant pollutant type per state by selecting the pollutant with the highest mean value.
+- Summarized the results in tabular format using the knitr and kableExtra packages to render the tables into my markdown.
 
 
 
 ## Results
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 library(dplyr)
 library(knitr)
 library(kableExtra)
 
 aqi <-read.csv("annual_aqi_by_county_2023.csv")
 
-
 summary_us <- aqi %>%
   group_by(State) %>%
-  summarize("# Good Days" = mean(Good.Days, na.rm = TRUE)) %>%
-  arrange(desc("# Good Days")) %>%
-  mutate(rank = row_number()) 
+  summarize(Good_Days = mean(Good.Days, na.rm = TRUE),
+            Days_CO = mean(Days.CO, na.rm = TRUE),
+            Days_NO2 = mean(Days.NO2, na.rm = TRUE),
+            Days_Ozone = mean(Days.Ozone, na.rm = TRUE),
+            Days_PM2.5 = mean(Days.PM2.5, na.rm = TRUE),
+            Days_PM10 = mean(Days.PM10, na.rm = TRUE)) %>%
+  mutate(State_Pollution_Type = case_when(
+      Days_CO == pmax(Days_CO, Days_NO2, Days_Ozone, Days_PM2.5, Days_PM10) ~
+        "CO",
+      Days_NO2 == pmax(Days_CO, Days_NO2, Days_Ozone, Days_PM2.5, Days_PM10) ~
+        "NO2",
+      Days_Ozone == pmax(Days_CO, Days_NO2, Days_Ozone, Days_PM2.5, Days_PM10) ~
+        "Ozone",
+      Days_PM2.5 == pmax(Days_CO, Days_NO2, Days_Ozone, Days_PM2.5, Days_PM10) ~
+        "PM2.5",
+      Days_PM10 == pmax(Days_CO, Days_NO2, Days_Ozone, Days_PM2.5, Days_PM10) ~
+        "PM10")) %>%
+  select(State,Good_Days, State_Pollution_Type) %>%  
+  arrange(desc(Good_Days))
+
 
 summary_us %>%
-  kbl(caption = "Average Number of Good Days by State") %>%
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+  rename(
+    "Good Days" = Good_Days,
+    "Annual Pollutant Type" = State_Pollution_Type) %>%
+  kbl(caption = "States with Best AQI and Majority Air Pollutant") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), 
+                full_width = FALSE, 
+                position = "center") %>%
+  column_spec(1, width = "100px") %>%  
+  column_spec(2, width = "200px") %>%  
+  footnote(general = "Pollutant type based on maximum pollutant days per year.") %>%
+  add_header_above(c(" " = 1, " " = 1, " " = 1))
 
 ```
-
-
+# References
+US Environmental Protection Agency. Air Quality System Data Mart [internet database] available via https://19january2021snapshot.epa.gov/airdata.
 
 
 
