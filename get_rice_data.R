@@ -31,9 +31,14 @@ get_rice_data <- function() {
                                     "Saturday",
                                     "Sunday"))
   data$Time <- format(data$DateTime, "%H:%M") # create time table from the DateTime format
-  # Removing DateTime and RecordID columns
-  data <- data %>% select(-DateTime, -RecordID) # DateTime was displayed again,
-  # RecordID is likely the least useful to the analysis.
+  # Unit Conversions
+  data$WindSpeed_mps <- data$WindSpeed_mph * 0.44704
+  data$AirTempC <- (data$AirTempF - 32) * 5 / 9
+  data$BP_mb <- data$BP_HG * 33.8639
+  data$Rain_mm <- data$Rain_in * 25.4
+  # Removing unnecessary columns
+  data <- data %>% select(-DateTime, -RecordID, -WindSpeed_mph, -AirTempF, -BP_HG, -Rain_in) 
+  #return modified data
+  return(data)
 }
-
 

@@ -1,0 +1,17 @@
+---
+title: "Graphics Homework"
+author: Ethan Pisterman
+format: html
+editor: source
+---
+
+
+
+
+```{r}
+library(dplyr)
+library(lubridate)
+
+data <- get_rice_data()
+```
+
