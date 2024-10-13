@@ -1,17 +1,117 @@
 ---
 title: "Graphics Homework"
-author: Ethan Pisterman
+author: "Ethan Pisterman"
 format: html
 editor: source
 ---
 
-
-
-
 ```{r}
 library(dplyr)
 library(lubridate)
-
-data <- get_rice_data()
+library(ggplot2)
+source("/Users/ethanpisterman/Desktop/ENVS  543/ENVS543/get_rice_data.R")
+Data <- get_rice_data()
 ```
 
+# **Total Rain for Each Weekday in January**
+
+## Create Query for January
+
+```{r}
+january <- Data %>%
+  filter(month(Date) == 1) %>%
+  group_by(Weekday) %>%
+  summarise(total_rain_mm = sum(Rain_mm, na.rm = TRUE))
+```
+
+## Basic Plot
+
+```{r}
+
+```
+
+## ggplot2
+
+```{r}
+
+```
+
+# AVG Daily Temp for Weekdays in February
+
+## 
+
+```{r}
+
+```
+
+## Basic Plot
+
+```{r}
+
+```
+
+## ggplot2
+
+```{r}
+
+```
+
+# Water depth on Valentine's Day
+
+## 
+
+```{r}
+
+```
+
+## Basic Plot
+
+```{r}
+
+```
+
+## ggplot2
+
+```{r}
+
+```
+
+# Scatter plot of Daily Total Rain and Daily Median Temp, grouped by month
+
+## 
+
+```{r}
+
+```
+
+## Basic Plot
+
+```{r}
+
+```
+
+## ggplot2
+
+```{r}
+
+```
+
+# Wind direction during the week containing the 8th of January
+
+## 
+
+```{r}
+
+```
+
+## Basic Plot
+
+```{r}
+
+```
+
+## ggplot2
+
+```{r}
+
+```

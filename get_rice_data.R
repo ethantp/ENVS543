@@ -37,8 +37,8 @@ get_rice_data <- function() {
   data$BP_mb <- data$BP_HG * 33.8639
   data$Rain_mm <- data$Rain_in * 25.4
   # Removing unnecessary columns
-  data <- data %>% select(-DateTime, -RecordID, -WindSpeed_mph, -AirTempF, -BP_HG, -Rain_in) 
+  cleaned.data <- data %>% select(-DateTime, -RecordID, -WindSpeed_mph, -AirTempF, -BP_HG, -Rain_in) 
   #return modified data
-  return(data)
+  return(cleaned.data)
 }
 
