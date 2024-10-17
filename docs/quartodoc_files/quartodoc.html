@@ -161,7 +161,7 @@ window.Quarto = {
 </div>
 <p>The ancient Egyptians were quite cleaver at engineering and building things. The <a href="https://en.wikipedia.org/wiki/Rhind_Mathematical_Papyrus">Rhind Papyrus</a>, which dates to 1650 BCE, indicates that they estimated the ratio between the circumfrence and the diameter of a circle to be 256 divided by 81. Mathematically is this more or less than what we estimate <span class="math inline">\(\pi\)</span> as? What is the magnitude of the difference?</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr) </span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>ratio <span class="ot">&lt;-</span> <span class="dv">256</span> <span class="sc">/</span> <span class="dv">81</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>pi. <span class="ot">&lt;-</span> pi</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>difference <span class="ot">&lt;-</span> <span class="fu">abs</span>(ratio <span class="sc">-</span> pi.)</span>
@@ -365,7 +365,7 @@ The code initally said -4, because the exponent function has higher precedence t
 <h3 class="anchored" data-anchor-id="dates">Dates</h3>
 <p>When did you first become a college student? Create a variable representing this date.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>first_day <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="st">"2021-08-25"</span>) <span class="co">#dates</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>first_day <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="st">"2021-08-25"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>How many days was it between then and now?</p>
 <div class="cell">
@@ -377,7 +377,7 @@ The code initally said -4, because the exponent function has higher precedence t
 <span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(days,</span>
 <span id="cb63-7"><a href="#cb63-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"days</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>1119 days</code></pre>
+<pre><code>1145 days</code></pre>
 </div>
 </div>
 </section>

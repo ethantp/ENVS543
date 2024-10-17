@@ -1,15 +1,14 @@
 ---
-title: "Graphics_Homework"
-output:
-  html_document:
-    toc: true
-    toc_depth: 2
-    css: styles.css
-    warning: false 
-    message: false 
-    error: false
+title: "Graphics Homework"
+author: "Ethan Pisterman"
+format: html
+editor: visual
+execute: 
+  warning: false
+  message: false
+  error: false
 ---
-
+# Required libraries & function from UR
 ```{r}
 library(dplyr)
 library(lubridate)
@@ -61,7 +60,7 @@ ggplot(january,
   scale_x_discrete(labels = substr(january$Weekday, 1, 1))
 ```
 
-# *AVG Daily Temp for Weekdays in February*
+# **AVG Daily Temp for Weekdays in February**
 
 ### Create February Dataframe
 
@@ -102,7 +101,7 @@ ggplot(feb, aes(x = Weekday,
                                    hjust = 1))  
 ```
 
-# *Water depth on Valentine's Day*
+# **Water depth on Valentine's Day**
 
 ### Create Valentines Dataframe
 
@@ -144,7 +143,7 @@ ggplot(valentines_day_data, aes(x = Time, y = Depth_m)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-# *Scatter plot of Daily Total Rain and Daily Median Temp, grouped by month*
+# **Scatter plot of Daily Total Rain and Daily Median Temp, grouped by month**
 
 ### Create Dataframe
 
@@ -184,7 +183,7 @@ ggplot(url.data, aes(x = AirTempC,
                                    hjust = 1))
 ```
 
-# *Wind direction during the week containing the 8th of January*
+# **Wind direction during the week containing the 8th of January**
 
 ### Filter Data
 

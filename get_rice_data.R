@@ -2,7 +2,7 @@
 #' A function to get data from the example Rice Rivers Center used in class
 #' This function downloads the data from the provided URL, processes the data 
 #' to include proper date and time objects with common units, with additional 
-#' date-time related columns, and also removes unessessary columns not needed
+#' date-time related columns, and also removes unnecessary columns not needed
 #' for final analysis.
 #'
 
@@ -37,7 +37,7 @@ get_rice_data <- function() {
   data$BP_mb <- data$BP_HG * 33.8639
   data$Rain_mm <- data$Rain_in * 25.4
   # Removing unnecessary columns
-  cleaned.data <- data %>% select(-DateTime, -RecordID, -WindSpeed_mph, -AirTempF, -BP_HG, -Rain_in) 
+  cleaned.data <- data %>% select(-Depth_ft, -RecordID, -WindSpeed_mph, -AirTempF, -BP_HG, -Rain_in) 
   #return modified data
   return(cleaned.data)
 }
