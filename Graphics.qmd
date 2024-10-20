@@ -1,6 +1,7 @@
 ---
 title: "Graphics Homework"
 author: "Ethan Pisterman"
+date: 10-15-2024
 format: html
 editor: visual
 execute: 
