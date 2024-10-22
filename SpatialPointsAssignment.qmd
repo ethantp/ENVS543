@@ -1,5 +1,6 @@
 ---
 title: "Spatial Data HW"
+author: "Ethan Pisterman"
 format: 
   html:
     code-tools: true
@@ -25,23 +26,19 @@ The following code defines the set of necessary libraries for the next few weeks
 needed_libraries <- c("sf",
                       "maps",
                       "units",
-                      "rgdal",
-                      "rgeos",
                       "GGally",
                       "raster",
                       "mapproj",
                       "leaflet",
                       "rnaturalearth",
-                      "rnaturalearthdata"
-                      )
+                      "rnaturalearthdata")
 # Determines which libraries you do not have
 #   already installed.
 need_inst <- setdiff( needed_libraries, 
                       rownames( installed.packages()) )
 # Instrall the neccessary ones.
 if( length( need_inst ) ) {
-  install.packages( need_inst, dependencies = TRUE )
-}
+  install.packages( need_inst, dependencies = TRUE )}
 ```
 
 ## The Data - Preprocessing
@@ -49,7 +46,8 @@ if( length( need_inst ) ) {
 The data for this is some site-level data from the Sonoran Desert bark beetle. The URL is in the next chunk, and is currently being hosted on my class [Github repository](https://github.com/dyerlab/ENVS-Lectures). Load it in.
 
 ```{r}
-url <- "https://raw.githubusercontent.com/dyerlab/ENVS-Lectures/master/data/Araptus_Disperal_Bias.csv"
+beetle.url <- "https://raw.githubusercontent.com/dyerlab/ENVS-Lectures/master/data/Araptus_Disperal_Bias.csv"
+beetle.data <- read.csv(beetle.url, stringsAsFactors = FALSE)
 ```
 
 ### Interactive Map
@@ -59,7 +57,19 @@ Use the `leaflet` library and make an interactive map. If you can, add a label t
 There is a great tutorial [here](https://rstudio.github.io/leaflet/map_widget.html) on how to customize the leaflet display. You may want to go look at it and see what you can use to make a better display.
 
 ```{r}
-# make a quick leaflet map here to get an idea of 
+# make a quick leaflet map here to get an idea of
+library(leaflet)
+#head(beetle.data)
+#str(beetle.data)
+leaflet(data = beetle.data) %>%
+  addTiles() %>% 
+  addMarkers(~Longitude, ~Latitude,
+             label = ~paste("Site", Site),
+             popup = ~paste("<b>Site:</b>", Site, 
+                            "<br><b>MFRatio:</b>", MFRatio, 
+                            "<br><b>Males:</b>", Males, 
+                            "<br><b>Females:</b>", Females)) %>%
+  addProviderTiles("OpenTopoMap")
 ```
 
 ### Converting to `sf` Objects
@@ -68,6 +78,13 @@ Convert the spatial data in the beetle data.frame into an `sf` object. Make sure
 
 ```{r}
 # convert raw data to simple features in your data.frame
+library(sf)
+
+beetle_sf <- st_as_sf(beetle.data, 
+                      coords = c("Longitude", "Latitude"),
+                      crs = 4326)
+#print(beetle_sf)
+#st_crs(beetle_sf)
 ```
 
 ### Questions
@@ -76,15 +93,89 @@ For these questions, you may want to look at the `sf` cheat sheet [here](https:/
 
 1.  How far apart (in km) are the sites Constitución (`const`) and San Francisquito (`sfran`)?
 
+```{r}
+const <- beetle_sf[beetle_sf$Site == "const", ]
+sfran <- beetle_sf[beetle_sf$Site == "sfran", ]
+
+distance <- st_distance(const, sfran) %>%
+  as.numeric() / 1000
+
+print(paste("The distance between Constitución and San Francisquito is", distance, "km"))
+```
+
 2.  Is there a correlation between habitat suitability and the ratio of males to female beetles sampled at each locale?
+```{r}
+correlation <- cor(beetle.data$Suitability, beetle.data$MFRatio,
+                   use = "complete.obs")
+
+print(paste("The correlation between Habitat Suitability and MFRatio is:", round(correlation, 3), "indicating a negative correlation."))
+```
 
 3.  Make a plot using `ggplot` of the data with suitability as the size of the points and the sex ratio as the fill color.
+```{r}
+library(ggplot2)
+library(rnaturalearth)
+library(rnaturalearthdata)
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+ggplot() +
+  geom_sf(data = world,
+          fill = "gray80",
+          color = "gray50") +
+  geom_point(data = beetle.data, aes(x = Longitude,
+                                     y = Latitude,
+                                     size = Suitability,
+                                     fill = MFRatio),
+             shape = 21,
+             color = "black") +
+  scale_fill_gradient(low = "blue", high = "red") +
+  labs(title = "Beetle Suitability vs Sex Ratio", 
+       x = "Longitude", 
+       y = "Latitude", 
+       size = "Suitability", 
+       fill = "MFRatio") +
+  theme_minimal() +
+   coord_sf(xlim = c(-116, -109),
+            ylim = c(22, 30)) +
+  theme(axis.text.x = element_text(angle = 30,
+                                   hjust = 1))
+```
 
 4.  Reproject the data and plot it again using an EPSG code defined for Mexico UTM zone 12N (see [epgs.io](https://epsg.io) for projections).
 
 ```{r}
-#| echo: false
-cor.response <- cor.test( iris$Petal.Length, iris$Sepal.Width)
+library(sf)
+library(ggplot2)
+library(rnaturalearth)
+
+beetle_utm <- st_transform(beetle_sf,
+                           crs = 32612)
+#print(beetle_utm)
+#st_crs(beetle_utm)
+world <- ne_countries(scale = "medium",
+                      returnclass = "sf")
+world_utm <- st_transform(world,
+                          crs = 32612)
+
+ggplot() +
+  geom_sf(data = world_utm,
+          fill = "gray80",
+          color = "gray50") +  
+  geom_sf(data = beetle_utm, aes(size = Suitability,
+                                 fill = MFRatio),
+          shape = 21,
+          color = "black") +
+  scale_fill_gradient(low = "blue", high = "red") +
+  labs(title = "Beetle Suitability vs Sex Ratio (UTM Zone 12N)", 
+       x = "Longitude (UTM)", 
+       y = "Latitude (UTM)", 
+       size = "Suitability", 
+       fill = "MFRatio") +
+  coord_sf(xlim = c(st_bbox(beetle_utm)["xmin"],
+                    st_bbox(beetle_utm)["xmax"]),
+           ylim = c(st_bbox(beetle_utm)["ymin"],
+                    st_bbox(beetle_utm)["ymax"])) +
+  theme_minimal() 
 ```
 
-We failed to find a significant relationship between sepal length and width (Pearson Correlation, $\rho$ = `r cor.response$estimate`, P = `r cor.response$p.value`).
