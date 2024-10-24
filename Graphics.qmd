@@ -106,7 +106,7 @@ ggplot(feb, aes(x = Weekday,
 
 # **Water depth on Valentine's Day**
 
-### Create Valentines Dataframe
+### Create Valentines Data frame
 
 ```{r}
 valentines_day_data <- url.data %>%
