@@ -1,0 +1,30 @@
+---
+title: "Factors"
+author: "Ethan Pisterman"
+date: "2024-10-24"
+output: html_document
+---
+
+```{r}
+library(lubridate)
+library(dplyr)
+library(forcats)
+
+source("/Users/ethanpisterman/Desktop/ENVS  543/ENVS543/get_rice_data.R")
+r_data <- get_rice_data()
+# Weekdays start on Monday
+r_data$Weekday <- fct_relevel(r_data$Weekday,
+                              c("Monday", "Tuesday", "Wednesday",
+                                "Thursday", "Friday", "Saturday", "Sunday"))
+# Weekday or Weekend column
+r_data <- r_data %>%
+  mutate(day_end = ifelse(Weekday %in% c("Saturday", "Sunday"), 
+                                  "Weekend", "Weekday"))
+
+r_data$day_end <- factor(r_data$day_end, 
+                                 levels = c("Weekday", "Weekend"),
+                         ordered = TRUE)
+# Moon phase column
+
+```
+
