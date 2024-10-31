@@ -1,0 +1,133 @@
+---
+title: "Textual Analysis"
+format: html
+editor: visual
+---
+
+## Textual Data
+```{r}
+library(tidyverse)
+library(readr)
+library(stringr)
+```
+
+
+
+
+```{r}
+w <- "'Coding is fun!' said Dyer."
+x <- "Ethan"
+y <- "Pisterman"
+z <- 'Bob Marley once said, "It is a foolish dog who barks at a passing bird."'
+
+w
+x
+y
+z
+print(z)
+cat(z)
+```
+
+## Creating text variables 
+```{r}
+paste("Bob", "is", "not", "Here", "man")
+paste("Bob", "is", "not", "Here", "man", sep = ", ")
+```
+
+```{r}
+length(z)
+nchar(z)
+str_length(z)
+```
+```{r}
+vec <- c(w,x,y,z)
+vec
+length(vec)
+str_length(vec)
+```
+```{r}
+a <- 1:10
+paste(a, collapse = ", ")
+
+b <- LETTERS[1:10]
+b
+
+paste(a, b, collapse = "x")
+```
+
+
+## Finding
+```{r}
+str_detect( z, "Marley")
+```
+
+
+```{r}
+str_locate_all( vec, "a")
+```
+
+```{r}
+str_sub(z, 24, -2)
+```
+
+
+
+## Regular Expressions
+
+- Make a graphical display of the number of courses in ENVS by course level 100,200, etc.
+- Make a worldcloud from the titles
+
+```{r}
+url <- "https://raw.githubusercontent.com/DyerlabTeaching/Textual-Data/refs/heads/main/data/ENVSclasses.txt?token=GHSAT0AAAAAACWO27UIA46V72P7DBZEP5EKZYZFFXQ"
+
+envs <- read_lines(url)
+head(envs, 25)
+```
+
+```{r}
+str_detect(envs, "ENVS") -> idx
+envs[ idx ]
+```
+
+```{r}
+envs101 <- envs[1]
+envs101
+```
+
+
+
+```{r}
+str_view(envs101, "ENVS")
+str_view(envs101, "Hour")
+str_view(envs101, "o")
+
+str_view(envs101, "[:digit:]")
+str_view(envs101, "[:digit:]{3}")
+
+str_view(envs101, "[:digit:]{2,3}")
+```
+
+```{r}
+str_view(envs101, "[:alpha:]")
+```
+
+
+```{r}
+str_view(envs101, "[:lowercase:]")
+```
+
+
+```{r}
+str_view(envs101, "[:space:]")
+```
+
+```{r}
+str_view(envs101, "[:alpha:]{4} [:digit:]{3}")
+str_view(envs101, "[:upper:]{4} [:digit:]{3}")
+str_view(envs101, "[:lower:]{4} [:digit:]{3}")
+```
+
+```{r}
+str_view(envs101, "[A-Z]{4} [0-9]{3}")
+```
+

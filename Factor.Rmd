@@ -4,27 +4,92 @@ author: "Ethan Pisterman"
 date: "2024-10-24"
 output: html_document
 ---
+# Introduction
 
-```{r}
+This document demonstrates data transformations and visualizations applied to the Rice Center dataset. We reformat weekdays, classify day types (Weekday vs. Weekend), assign lunar phases, and assess tidal movements.
+
+## Loading Libraries and Data
+```{r setup, message=FALSE, warning=FALSE}
 library(lubridate)
 library(dplyr)
 library(forcats)
+library(ggplot2)
 
 source("/Users/ethanpisterman/Desktop/ENVS  543/ENVS543/get_rice_data.R")
 r_data <- get_rice_data()
-# Weekdays start on Monday
+```
+
+## Reorder weekdays to start on Monday
+```{r}
 r_data$Weekday <- fct_relevel(r_data$Weekday,
                               c("Monday", "Tuesday", "Wednesday",
                                 "Thursday", "Friday", "Saturday", "Sunday"))
+# Removing NA values
+r_data_filtered <- r_data %>% filter(!is.na(Weekday))
+# Bar Chart
+ggplot(r_data_filtered, aes(x = Weekday)) +
+  geom_bar() +
+  theme_minimal()
+```
+
+## Adding Weekday/Weekend Classification
+```{r}
 # Weekday or Weekend column
-r_data <- r_data %>%
+r_data_filtered <- r_data_filtered %>%
   mutate(day_end = ifelse(Weekday %in% c("Saturday", "Sunday"), 
                                   "Weekend", "Weekday"))
-
-r_data$day_end <- factor(r_data$day_end, 
+# Convert to ordered factor
+r_data_filtered$day_end <- factor(r_data_filtered$day_end, 
                                  levels = c("Weekday", "Weekend"),
                          ordered = TRUE)
-# Moon phase column
+ggplot(r_data_filtered, aes(x = Weekday,
+                            fill = day_end)) +
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title = "Distribution of Observations by Weekday and Weekend",
+       x = "Day of the Week",
+       y = "Count")
+```
 
+## Assigning Lunar Phases
+```{r}
+# Moon phase column
+lunar_phase <- function(date) {
+  day_in_cycle <- as.numeric(difftime(date,
+                                      as.Date("2024-01-01"),
+                                      units = "days")) %% 29.53
+  case_when(
+    day_in_cycle < 7.4 ~ "New Moon",
+    day_in_cycle < 14.8 ~ "First Quarter",
+    day_in_cycle < 22.1 ~ "Full Moon",
+    TRUE ~ "Last Quarter")
+}
+
+r_data_filtered <- r_data_filtered %>%
+  mutate(lunar_phase = lunar_phase(Date))
+
+ggplot(r_data_filtered, aes(x = lunar_phase)) +
+  geom_bar() +
+  theme_minimal() +
+  labs(title = "Distribution by Lunar Phase", x = "Lunar Phase", y = "Count")
+```
+
+## Determining Tide Direction
+```{r}
+# Tidal
+r_data_filtered <- r_data_filtered %>%
+  arrange(DateTime) %>%
+  mutate(tide_direction = ifelse(
+    lead(SurfaceWaterElev_m_levelNad83m) > SurfaceWaterElev_m_levelNad83m, 
+    "Incoming", 
+    "Outgoing"
+  ))
+ggplot(r_data_filtered, aes(x = DateTime, y = SurfaceWaterElev_m_levelNad83m, color = tide_direction)) +
+  geom_line() +
+  labs(title = "Tide Direction Over Time",
+       x = "DateTime",
+       y = "Surface Water Elevation (m)",
+       color = "Tide Direction") +
+  theme_minimal()
 ```
 
