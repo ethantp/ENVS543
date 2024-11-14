@@ -1,0 +1,142 @@
+---
+title: "Raster Data"
+author: "Ethan Pisterman"
+date: "2024-10-31"
+output: html_document
+---
+
+## Introduction
+
+This analysis investigates geospatial data from a raster file detailing elevation and point data for beetle sampling sites across the Baja California peninsula. Key tasks include visualizing data, filtering regions, and examining the relationship between sex ratios and elevation at sampling sites.
+
+## 1
+```{r setup, message=FALSE, warning=FALSE}
+library(raster)
+library(dplyr)
+library(ggplot2)
+library(sf)
+library(sp)
+library(ggrepel)
+
+raster_url <- "https://github.com/DyerlabTeaching/Raster-Data/raw/main/data/alt_22.tif"
+beetle_url <- "https://raw.githubusercontent.com/DyerlabTeaching/Raster-Data/main/data/AraptusDispersalBias.csv"
+# Load raster and point data
+r <- raster(raster_url)
+points_data <- read.csv(beetle_url)
+
+# Convert points_data to a spatial data frame
+points_data <- st_as_sf(points_data, coords = c("Longitude", "Latitude"), crs = crs(r))
+
+# Crop the raster to the bounding box of points_data
+r_cropped <- crop(r, extent(points_data))
+
+# Convert the cropped raster to a data frame for plotting
+r_cropped_df <- as.data.frame(r_cropped, xy = TRUE)
+colnames(r_cropped_df)[3] <- "elevation"
+```
+
+## 2
+```{r}
+# Plot the raster to initialize the graphic window
+extent_cape <- extent(-113, -109, 23, 26)  # Adjust these coordinates if necessary
+
+# Crop the raster to this static Cape region extent
+r_cape <- crop(r, extent_cape)
+
+# Convert the cropped raster to a data frame for plotting
+r_cape_df <- as.data.frame(r_cape, xy = TRUE)
+colnames(r_cape_df)[3] <- "elevation"
+# Extract coordinates from the clicked points
+latitude_cutoff <- 26  # Latitude cutoff based on site #75
+points_cape <- points_data %>%
+  filter(st_coordinates(geometry)[,2] < latitude_cutoff)
+
+
+
+library(ggrepel)
+
+r_cape_df_filtered <- r_cape_df %>%
+  filter(elevation >= 205, elevation <= 405)
+ggplot() +
+  geom_raster(aes(x = x, y = y), fill = "gray80", data = r_cape_df) +
+  geom_raster(aes(x = x, y = y, fill = elevation), data = r_cape_df) +
+  scale_fill_gradient2(low = "darkolivegreen", mid = "yellow", high = "brown", midpoint = 305) +
+  geom_sf(aes(size = MFRatio), alpha = 0.5, color = "dodgerblue3", data = points_cape) +
+  geom_text_repel(aes(label = Site, geometry = geometry), data = points_cape, 
+                  stat = "sf_coordinates", size = 4, color = "dodgerblue4") +
+ coord_sf() +
+  labs(title = "Cropped Cape Region Map with Sampling Sites by Sex Ratio", 
+       x = "Longitude", y = "Latitude", fill = "Elevation") +
+  theme_minimal()
+
+
+```
+
+## 3
+```{r}
+points_data <- points_data %>%
+  mutate(State = ifelse(st_coordinates(geometry)[,2] >= 28, "Baja California Norte", "Baja California Sur"))
+# Calculate the average sex ratio by state
+
+avg_sex_ratio <- points_data %>%
+  group_by(State) %>%
+  summarise(AvgSexRatio = mean(MFRatio, na.rm = TRUE))
+
+# Plot the average sex ratio by state
+label_coords <- data.frame(
+  State = c("Baja California Norte", "Baja California Sur"),
+  Longitude = c(-111.5, -113),  # Approximate central longitudes for label placement
+  Latitude = c(29, 24)        # Adjust latitudes to place labels within each state
+)
+
+avg_sex_ratio <- left_join(avg_sex_ratio, label_coords, by = "State")
+
+
+midpoint_value <- median(r_cropped_df$elevation, na.rm = TRUE)
+
+ggplot() +
+  geom_raster(data = r_cropped_df, aes(x = x, y = y, fill = elevation)) +
+  geom_point(data = points_data, 
+             aes(x = st_coordinates(geometry)[,1], 
+                 y = st_coordinates(geometry)[,2], 
+                 size = MFRatio, color = State), 
+             alpha = 0.5) +
+  geom_text(data = avg_sex_ratio, 
+            aes(x = Longitude, 
+                y = Latitude, 
+                label = paste(State, "\nAvg Sex Ratio:", round(AvgSexRatio, 2))),
+            size = 4, color = "black") +
+  scale_fill_gradient2(low = "darkolivegreen", mid = "yellow", high = "brown", 
+                       midpoint = midpoint_value, na.value = "transparent", 
+                       name = "Elevation") +
+  scale_size_continuous(name = "Sex Ratio (M/F)") +
+  labs(title = "Elevation and Average Sex Ratio by State", 
+       x = "Longitude", y = "Latitude") +
+  theme_minimal()
+
+```
+
+## 4
+```{r}
+raster_data <- rasterFromXYZ(r_cropped_df[, c("x", "y", "elevation")])
+
+# Extract elevation values for points in points_data based on their coordinates
+points_data$elevation <- raster::extract(raster_data, points_data)
+
+# Check for missing elevations (if points fall outside the raster extent)
+points_data <- points_data %>% filter(!is.na(elevation))
+
+ggplot(points_data, aes(x = elevation, y = MFRatio)) +
+  geom_point(alpha = 0.6, color = "blue") +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +  #
+  labs(title = "Relationship between Elevation and Sex Ratio (M/F)",
+       x = "Elevation (m)",
+       y = "Sex Ratio (M/F)") +
+  theme_minimal()
+
+cor_test_result <- cor.test(points_data$elevation, points_data$MFRatio, method = "pearson")
+
+cor_test_result
+```
+
+

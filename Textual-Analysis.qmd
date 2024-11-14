@@ -8,10 +8,13 @@ summary: "This document provides a textual analysis of course data from VCU Life
 ---
 
 # Introduction
+
 The goal of this analysis is to explore the undergraduate course offerings in VCU Life Sciences, specifically focusing on Bioinformatics (BNFO), Environmental Studies (ENVS), and Life Sciences (LFSC). We aim to understand the distribution of courses across different levels and identify common themes through the use of textual data analysis and visualization. This document is intended to stand alone, meaning it provides all the necessary context, analysis, and conclusions without requiring additional information from external sources.
 
 # Setup
+
 To begin, we load the necessary libraries and import the data from an external source. The data contains course descriptions for VCU Life Sciences programs.
+
 ```{r setup, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(ggplot2)
@@ -27,10 +30,13 @@ envs <- read_lines(url)
 ```
 
 # Data Parsing and Course Count Analyis
+
 In this section, we extract the course prefixes and levels from the raw data. We group the courses by level category (e.g., 100, 200, 300, 400-level) and visualize the distribution using a bar plot.
 
 ## Data Extraction
+
 First, we extract the prefixes and course levels using regular expressions. This allows us to analyze how many courses are offered at different levels for each program.
+
 ```{r}
 # Extract course prefixes and levels
 course_df <- str_match(envs, "^([A-Z]{4})\\s+(\\d{3})")
@@ -42,7 +48,9 @@ course_df <- tibble(
 ```
 
 ## Grouping and Counting Courses by Level
+
 Next, we categorize the courses by their level (e.g., 100-level, 200-level) and count how many courses are offered in each category, grouped by program.
+
 ```{r}
 # Categorize courses by level and count them
 course_counts <- course_df %>%
@@ -52,7 +60,9 @@ course_counts <- course_df %>%
 ```
 
 ## Visualization: Course Distribution
+
 We use `ggplot2` to create a bar plot that visualizes the number of courses at each level, grouped by program. This helps us understand the distribution of courses across different levels.
+
 ```{r}
 ggplot(course_counts, aes(x = Level_Category,
                           y = n,
@@ -79,11 +89,15 @@ ggplot(course_counts, aes(x = Level_Category,
                                          linetype = "solid"),
         panel.grid.major.x = element_blank())
 ```
+
 # Wordcloud Analysis
+
 To further explore the course titles, we create a wordcloud to visualize the most frequently occurring terms. This helps highlight the key themes in the courses offered by VCU Life Sciences.
 
 ## Extracting Course Titles
+
 We start by extracting the complete course titles from the raw data using a regular expression. We then clean the titles to remove extraneous characters and prepare them for the wordcloud.
+
 ```{r}
 # Extract course titles using regular expressions
 pattern <- "^[A-Z]{4} [0-9]{3}.*[0-9] Hours\\.$"
@@ -99,7 +113,9 @@ title <- str_trim(title)
 ```
 
 ## Creating a Wordcloud
+
 We split the course titles into individual words, count their occurrences, and then create a wordcloud to visualize the most frequent words.
+
 ```{r}
 # Split titles into individual words
 as.vector( str_split( title,
@@ -127,4 +143,5 @@ wordcloud2(data = tdm)
 ```
 
 # Conclusion
+
 This textual analysis of VCU Life Sciences course data provides insights into the distribution of courses across different levels and highlights common themes within course titles. The bar plot visualization demonstrates the distribution of courses at various levels, while the wordcloud analysis emphasizes the recurring themes and key focus areas of the programs. By presenting these visualizations, we gain a deeper understanding of the academic offerings and their thematic structure within VCU Life Sciences.
