@@ -1,10 +1,12 @@
 ---
 title: "Spatial Data HW"
 author: "Ethan Pisterman"
+date: "`r Sys.Date()`"
 format: 
   html:
     code-tools: true
     toc: false
+abstract: "This document demonstrates spatial data analysis using geospatial libraries in R. It includes data loading, preprocessing, and visualization using interactive maps."
 ---
 
 <center>
@@ -13,16 +15,15 @@ format:
 
 </center>
 
-This homework is a bit quick but is designed to make sure that:
+# Introcuction
 
-1.  To make sure everyone can get their computer up-to-date with the proper set of libraries so that we can work with geospatial data, and
-2.  Give you some practice turning normal numerical data into geospatial coordinates and performing basic operations.
+This document focuses on analyzing site-level data from the Sonoran Desert bark beetle (*Araptus attenuatus*). The purpose is to load and preprocess the data, and create an interactive map to visualize the locations of the beetle sightings.
 
 ## Spatial Libraries
 
 The following code defines the set of necessary libraries for the next few weeks and then figures out which (potential) subset you need to install. It then installs them all in one call. It will not load them into your session, you'll have to do that later in your code chunks.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 needed_libraries <- c("sf",
                       "maps",
                       "units",
@@ -39,6 +40,16 @@ need_inst <- setdiff( needed_libraries,
 # Instrall the neccessary ones.
 if( length( need_inst ) ) {
   install.packages( need_inst, dependencies = TRUE )}
+# Load the libraries
+library(sf)
+library(maps)
+library(units)
+library(GGally)
+library(raster)
+library(mapproj)
+library(leaflet)
+library(rnaturalearth)
+library(rnaturalearthdata)
 ```
 
 ## The Data - Preprocessing
@@ -48,19 +59,32 @@ The data for this is some site-level data from the Sonoran Desert bark beetle. T
 ```{r}
 beetle.url <- "https://raw.githubusercontent.com/dyerlab/ENVS-Lectures/master/data/Araptus_Disperal_Bias.csv"
 beetle.data <- read.csv(beetle.url, stringsAsFactors = FALSE)
+
+str(beetle.data)
+summary(beetle.data)
+```
+
+### Basic Data Visualization
+```{r}
+# Scatter plot of the sites
+library(ggplot2)
+
+ggplot(beetle.data, aes(x = Longitude, y = Latitude)) +
+  geom_point(color = "blue", alpha = 0.6) +
+  labs(
+    title = "Geographical Distribution of Beetle Observation Sites",
+    x = "Longitude",
+    y = "Latitude"
+  ) +
+  theme_minimal()
 ```
 
 ### Interactive Map
 
-Use the `leaflet` library and make an interactive map. If you can, add a label to each marker with the ID of the site. You can look at the provider tiles [here](https://leaflet-extras.github.io/leaflet-providers/preview/) and use on in the `addProviderTiles()` function.
-
-There is a great tutorial [here](https://rstudio.github.io/leaflet/map_widget.html) on how to customize the leaflet display. You may want to go look at it and see what you can use to make a better display.
-
 ```{r}
 # make a quick leaflet map here to get an idea of
 library(leaflet)
-#head(beetle.data)
-#str(beetle.data)
+
 leaflet(data = beetle.data) %>%
   addTiles() %>% 
   addMarkers(~Longitude, ~Latitude,
@@ -74,7 +98,7 @@ leaflet(data = beetle.data) %>%
 
 ### Converting to `sf` Objects
 
-Convert the spatial data in the beetle data.frame into an `sf` object. Make sure you set the Coordinate Reference System to $4326$.
+Convert the dataset to a Simple Features (sf) object with a CRS of EPSG:4326.
 
 ```{r}
 # convert raw data to simple features in your data.frame
@@ -83,17 +107,16 @@ library(sf)
 beetle_sf <- st_as_sf(beetle.data, 
                       coords = c("Longitude", "Latitude"),
                       crs = 4326)
-#print(beetle_sf)
-#st_crs(beetle_sf)
+print(st_crs(beetle_sf))
 ```
 
 ### Questions
 
-For these questions, you may want to look at the `sf` cheat sheet [here](https://github.com/rstudio/cheatsheets/raw/main/sf.pdf) to find the appropriate geospatial function.
-
 1.  How far apart (in km) are the sites Constitución (`const`) and San Francisquito (`sfran`)?
 
 ```{r}
+library(sf)
+
 const <- beetle_sf[beetle_sf$Site == "const", ]
 sfran <- beetle_sf[beetle_sf$Site == "sfran", ]
 
@@ -108,7 +131,7 @@ print(paste("The distance between Constitución and San Francisquito is", distan
 correlation <- cor(beetle.data$Suitability, beetle.data$MFRatio,
                    use = "complete.obs")
 
-print(paste("The correlation between Habitat Suitability and MFRatio is:", round(correlation, 3), "indicating a negative correlation."))
+cat("The correlation coefficient between habitat suitability and MFRatio is:", round(correlation, 3))
 ```
 
 3.  Make a plot using `ggplot` of the data with suitability as the size of the points and the sex ratio as the fill color.
@@ -142,7 +165,7 @@ ggplot() +
                                    hjust = 1))
 ```
 
-4.  Reproject the data and plot it again using an EPSG code defined for Mexico UTM zone 12N (see [epgs.io](https://epsg.io) for projections).
+4.  Reproject the data and plot it again using an EPSG code defined for Mexico UTM zone 12N.
 
 ```{r}
 library(sf)
@@ -151,8 +174,7 @@ library(rnaturalearth)
 
 beetle_utm <- st_transform(beetle_sf,
                            crs = 32612)
-#print(beetle_utm)
-#st_crs(beetle_utm)
+
 world <- ne_countries(scale = "medium",
                       returnclass = "sf")
 world_utm <- st_transform(world,
