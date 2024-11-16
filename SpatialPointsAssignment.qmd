@@ -15,7 +15,7 @@ abstract: "This document demonstrates spatial data analysis using geospatial lib
 
 </center>
 
-# Introcuction
+# Introduction
 
 This document focuses on analyzing site-level data from the Sonoran Desert bark beetle (*Araptus attenuatus*). The purpose is to load and preprocess the data, and create an interactive map to visualize the locations of the beetle sightings.
 
