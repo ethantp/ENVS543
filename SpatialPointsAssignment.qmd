@@ -65,6 +65,7 @@ summary(beetle.data)
 ```
 
 ### Basic Data Visualization
+
 ```{r}
 # Scatter plot of the sites
 library(ggplot2)
@@ -127,6 +128,7 @@ print(paste("The distance between Constitución and San Francisquito is", distan
 ```
 
 2.  Is there a correlation between habitat suitability and the ratio of males to female beetles sampled at each locale?
+
 ```{r}
 correlation <- cor(beetle.data$Suitability, beetle.data$MFRatio,
                    use = "complete.obs")
@@ -135,6 +137,7 @@ cat("The correlation coefficient between habitat suitability and MFRatio is:", r
 ```
 
 3.  Make a plot using `ggplot` of the data with suitability as the size of the points and the sex ratio as the fill color.
+
 ```{r}
 library(ggplot2)
 library(rnaturalearth)
@@ -200,4 +203,3 @@ ggplot() +
                     st_bbox(beetle_utm)["ymax"])) +
   theme_minimal() 
 ```
-
