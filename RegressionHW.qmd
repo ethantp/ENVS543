@@ -370,8 +370,8 @@ Models with ΔAIC≤2\Delta \text{AIC} \leq 2ΔAIC≤2 are considered statistica
 
 # **Conclusion**
 
--   **Best Model**: `Wind + Visib` (lowest AIC, reasonable R2R^2R2).
+-   **Best Model**: `Wind + Visib` (lowest AIC, reasonable R2R\^2R2).
 
--   **Model Insights**: `Wind Speed` and `Visibility` are the most relevant predictors of `Departure Delay`, though their combined effect is modest (R2=6.8%R^2 = 6.8\%R2=6.8%).
+-   **Model Insights**: `Wind Speed` and `Visibility` are the most relevant predictors of `Departure Delay`, though their combined effect is modest (R2=6.8%R\^2 = 6.8%R2=6.8%).
 
 -   **Recommendation**: Use the `Wind + Visib` model for interpretation and predictions, as it balances simplicity and effectiveness without unnecessary complexity.
