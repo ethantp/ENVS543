@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ethan Pisterman">
+<meta name="dcterms.date" content="2024-11-20">
+
+<title>Regression Homework Activity</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="Regression_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Regression_files/libs/quarto-html/quarto.js"></script>
+<script src="Regression_files/libs/quarto-html/popper.min.js"></script>
+<script src="Regression_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Regression_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Regression_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Regression_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Regression_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Regression_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Regression_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><strong>Introduction</strong></a></li>
+  <li><a href="#data-preparation" id="toc-data-preparation" class="nav-link" data-scroll-target="#data-preparation"><strong>Data Preparation</strong></a>
+  <ul class="collapse">
+  <li><a href="#data-summary---flights" id="toc-data-summary---flights" class="nav-link" data-scroll-target="#data-summary---flights"><strong>Data Summary - flights</strong></a></li>
+  <li><a href="#data-summary---weather" id="toc-data-summary---weather" class="nav-link" data-scroll-target="#data-summary---weather"><strong>Data Summary - weather</strong></a></li>
+  <li><a href="#filter-and-prepare-flight-data" id="toc-filter-and-prepare-flight-data" class="nav-link" data-scroll-target="#filter-and-prepare-flight-data"><strong>Filter and Prepare Flight Data</strong></a></li>
+  <li><a href="#departure-interpretation" id="toc-departure-interpretation" class="nav-link" data-scroll-target="#departure-interpretation"><strong>Departure Interpretation</strong></a></li>
+  <li><a href="#weather-interpretation" id="toc-weather-interpretation" class="nav-link" data-scroll-target="#weather-interpretation"><strong>Weather Interpretation</strong></a></li>
+  <li><a href="#merge-flight-and-weather-data" id="toc-merge-flight-and-weather-data" class="nav-link" data-scroll-target="#merge-flight-and-weather-data"><strong>Merge Flight and Weather Data</strong></a></li>
+  </ul></li>
+  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis"><strong>Exploratory Data Analysis</strong></a>
+  <ul class="collapse">
+  <li><a href="#best-model-wind-visib" id="toc-best-model-wind-visib" class="nav-link" data-scroll-target="#best-model-wind-visib"><strong>1. Best Model: <code>Wind + Visib</code></strong></a></li>
+  <li><a href="#competing-models" id="toc-competing-models" class="nav-link" data-scroll-target="#competing-models"><strong>2. Competing Models</strong></a></li>
+  <li><a href="#full-model" id="toc-full-model" class="nav-link" data-scroll-target="#full-model"><strong>3. Full Model</strong></a></li>
+  <li><a href="#poor-models-δaic10-10δaic10" id="toc-poor-models-δaic10-10δaic10" class="nav-link" data-scroll-target="#poor-models-δaic10-10δaic10"><strong>4. Poor Models (</strong>ΔAIC&gt;10 &gt; 10ΔAIC&gt;10)</a></li>
+  <li><a href="#general-observations" id="toc-general-observations" class="nav-link" data-scroll-target="#general-observations"><strong>5. General Observations</strong></a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><strong>Conclusion</strong></a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Regression Homework Activity</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ethan Pisterman </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 20, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+<div>
+  <div class="abstract">
+    <div class="block-title">Abstract</div>
+    <p>This analysis explores the factors influencing departure delays for flights, using regression models to evaluate the impact of predictors such as wind speed, visibility, temperature, and precipitation. Several models were compared based on Akaike Information Criterion (AIC) and variance explained (R²). The final model identified visibility and wind speed as significant predictors, though the overall variation explained by these factors is limited, suggesting other unmeasured variables may play a larger role.”</p>
+  </div>
+</div>
+
+
+</header>
+
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load necessary libraries</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>( tidyverse )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>( nycflights13 )</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: carData
+
+Attaching package: 'car'
+
+The following object is masked from 'package:dplyr':
+
+    recode
+
+The following object is masked from 'package:purrr':
+
+    some</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="introduction" class="level1">
+<h1><strong>Introduction</strong></h1>
+<p>Regression analysis is a critical tool in understanding relationships between variables. This activity examines factors affecting departure delays for ExpressJet Airlines flights from JFK. Using the <code>nycflights13</code> dataset and weather data, we:</p>
+<ul>
+<li><p>Explore and prepare the data.</p></li>
+<li><p>Perform linear regression analysis using <code>lm()</code>.</p></li>
+<li><p>Evaluate model fit using residuals and diagnostics.</p></li>
+<li><p>Select the best model using AIC.</p></li>
+</ul>
+</section>
+<section id="data-preparation" class="level1">
+<h1><strong>Data Preparation</strong></h1>
+<p>We begin by summarizing the <code>flights</code> and <code>weather</code> datasets to understand their structure and content.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summarize flights data</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>( flights)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      year          month             day           dep_time    sched_dep_time
+ Min.   :2013   Min.   : 1.000   Min.   : 1.00   Min.   :   1   Min.   : 106  
+ 1st Qu.:2013   1st Qu.: 4.000   1st Qu.: 8.00   1st Qu.: 907   1st Qu.: 906  
+ Median :2013   Median : 7.000   Median :16.00   Median :1401   Median :1359  
+ Mean   :2013   Mean   : 6.549   Mean   :15.71   Mean   :1349   Mean   :1344  
+ 3rd Qu.:2013   3rd Qu.:10.000   3rd Qu.:23.00   3rd Qu.:1744   3rd Qu.:1729  
+ Max.   :2013   Max.   :12.000   Max.   :31.00   Max.   :2400   Max.   :2359  
+                                                 NA's   :8255                 
+   dep_delay          arr_time    sched_arr_time   arr_delay       
+ Min.   : -43.00   Min.   :   1   Min.   :   1   Min.   : -86.000  
+ 1st Qu.:  -5.00   1st Qu.:1104   1st Qu.:1124   1st Qu.: -17.000  
+ Median :  -2.00   Median :1535   Median :1556   Median :  -5.000  
+ Mean   :  12.64   Mean   :1502   Mean   :1536   Mean   :   6.895  
+ 3rd Qu.:  11.00   3rd Qu.:1940   3rd Qu.:1945   3rd Qu.:  14.000  
+ Max.   :1301.00   Max.   :2400   Max.   :2359   Max.   :1272.000  
+ NA's   :8255      NA's   :8713                  NA's   :9430      
+   carrier              flight       tailnum             origin         
+ Length:336776      Min.   :   1   Length:336776      Length:336776     
+ Class :character   1st Qu.: 553   Class :character   Class :character  
+ Mode  :character   Median :1496   Mode  :character   Mode  :character  
+                    Mean   :1972                                        
+                    3rd Qu.:3465                                        
+                    Max.   :8500                                        
+                                                                        
+     dest              air_time        distance         hour      
+ Length:336776      Min.   : 20.0   Min.   :  17   Min.   : 1.00  
+ Class :character   1st Qu.: 82.0   1st Qu.: 502   1st Qu.: 9.00  
+ Mode  :character   Median :129.0   Median : 872   Median :13.00  
+                    Mean   :150.7   Mean   :1040   Mean   :13.18  
+                    3rd Qu.:192.0   3rd Qu.:1389   3rd Qu.:17.00  
+                    Max.   :695.0   Max.   :4983   Max.   :23.00  
+                    NA's   :9430                                  
+     minute        time_hour                     
+ Min.   : 0.00   Min.   :2013-01-01 05:00:00.00  
+ 1st Qu.: 8.00   1st Qu.:2013-04-04 13:00:00.00  
+ Median :29.00   Median :2013-07-03 10:00:00.00  
+ Mean   :26.23   Mean   :2013-07-03 05:22:54.64  
+ 3rd Qu.:44.00   3rd Qu.:2013-10-01 07:00:00.00  
+ Max.   :59.00   Max.   :2013-12-31 23:00:00.00  
+                                                 </code></pre>
+</div>
+</div>
+<section id="data-summary---flights" class="level3">
+<h3 class="anchored" data-anchor-id="data-summary---flights"><strong>Data Summary - flights</strong></h3>
+<p>The dataset provides details on flights departing from NYC airports in 2013. Key observations include:</p>
+<section id="date-information" class="level4">
+<h4 class="anchored" data-anchor-id="date-information"><strong>Date Information:</strong></h4>
+<ul>
+<li>Flights span the entire year, with consistent coverage across months.</li>
+</ul>
+</section>
+<section id="departure-and-arrival-times" class="level4">
+<h4 class="anchored" data-anchor-id="departure-and-arrival-times"><strong>Departure and Arrival Times:</strong></h4>
+<ul>
+<li><p>Departure times (<code>dep_time</code>) range from midnight to midnight, with some missing values. Scheduled departure times (<code>sched_dep_time</code>) are evenly distributed, averaging 13:44 (early afternoon).</p></li>
+<li><p><strong>Delays</strong>:</p>
+<ul>
+<li><p>Departure delays range from -43 to 1301 minutes, with an average of <strong>12.6 minutes</strong>, though most were slightly ahead of schedule (median: -2 minutes).</p></li>
+<li><p>Arrival delays range from -86 to 1272 minutes, averaging <strong>6.9 minutes</strong> (median: -5 minutes), indicating frequent early arrivals.</p></li>
+</ul></li>
+</ul>
+</section>
+<section id="flight-characteristics" class="level4">
+<h4 class="anchored" data-anchor-id="flight-characteristics"><strong>Flight Characteristics:</strong></h4>
+<ul>
+<li>Flights range from 20 minutes to 11.6 hours, averaging <strong>150.7 minutes</strong> (~2.5 hours), and cover distances from 17 to 4983 miles, with an average of <strong>1040 miles</strong>.</li>
+</ul>
+</section>
+<section id="missing-data" class="level4">
+<h4 class="anchored" data-anchor-id="missing-data"><strong>Missing Data:</strong></h4>
+<ul>
+<li>Variables like <code>dep_time</code>, <code>arr_time</code>, and <code>air_time</code> have missing values, which need consideration during analysis.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summarize weather data</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>( weather )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    origin               year          month             day       
+ Length:26115       Min.   :2013   Min.   : 1.000   Min.   : 1.00  
+ Class :character   1st Qu.:2013   1st Qu.: 4.000   1st Qu.: 8.00  
+ Mode  :character   Median :2013   Median : 7.000   Median :16.00  
+                    Mean   :2013   Mean   : 6.504   Mean   :15.68  
+                    3rd Qu.:2013   3rd Qu.: 9.000   3rd Qu.:23.00  
+                    Max.   :2013   Max.   :12.000   Max.   :31.00  
+                                                                   
+      hour            temp             dewp           humid       
+ Min.   : 0.00   Min.   : 10.94   Min.   :-9.94   Min.   : 12.74  
+ 1st Qu.: 6.00   1st Qu.: 39.92   1st Qu.:26.06   1st Qu.: 47.05  
+ Median :11.00   Median : 55.40   Median :42.08   Median : 61.79  
+ Mean   :11.49   Mean   : 55.26   Mean   :41.44   Mean   : 62.53  
+ 3rd Qu.:17.00   3rd Qu.: 69.98   3rd Qu.:57.92   3rd Qu.: 78.79  
+ Max.   :23.00   Max.   :100.04   Max.   :78.08   Max.   :100.00  
+                 NA's   :1        NA's   :1       NA's   :1       
+    wind_dir       wind_speed         wind_gust         precip        
+ Min.   :  0.0   Min.   :   0.000   Min.   :16.11   Min.   :0.000000  
+ 1st Qu.:120.0   1st Qu.:   6.905   1st Qu.:20.71   1st Qu.:0.000000  
+ Median :220.0   Median :  10.357   Median :24.17   Median :0.000000  
+ Mean   :199.8   Mean   :  10.518   Mean   :25.49   Mean   :0.004469  
+ 3rd Qu.:290.0   3rd Qu.:  13.809   3rd Qu.:28.77   3rd Qu.:0.000000  
+ Max.   :360.0   Max.   :1048.361   Max.   :66.75   Max.   :1.210000  
+ NA's   :460     NA's   :4          NA's   :20778                     
+    pressure          visib          time_hour                    
+ Min.   : 983.8   Min.   : 0.000   Min.   :2013-01-01 01:00:00.0  
+ 1st Qu.:1012.9   1st Qu.:10.000   1st Qu.:2013-04-01 21:30:00.0  
+ Median :1017.6   Median :10.000   Median :2013-07-01 14:00:00.0  
+ Mean   :1017.9   Mean   : 9.255   Mean   :2013-07-01 18:26:37.7  
+ 3rd Qu.:1023.0   3rd Qu.:10.000   3rd Qu.:2013-09-30 13:00:00.0  
+ Max.   :1042.1   Max.   :10.000   Max.   :2013-12-30 18:00:00.0  
+ NA's   :2729                                                     </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="data-summary---weather" class="level3">
+<h3 class="anchored" data-anchor-id="data-summary---weather"><strong>Data Summary - weather</strong></h3>
+<p>The dataset includes weather data for 2013, providing details on various environmental conditions:</p>
+<section id="date-and-time-information" class="level4">
+<h4 class="anchored" data-anchor-id="date-and-time-information"><strong>Date and Time Information:</strong></h4>
+<ul>
+<li>Observations cover the full year 2013, with hourly records ranging from midnight (0:00) to 11 PM (23:00).</li>
+</ul>
+</section>
+<section id="temperature-and-humidity" class="level4">
+<h4 class="anchored" data-anchor-id="temperature-and-humidity"><strong>Temperature and Humidity:</strong></h4>
+<ul>
+<li><p><strong>Temperature</strong> ranges from 10.94°F to 100.04°F, with an average of <strong>55.26°F</strong>.</p></li>
+<li><p><strong>Dew Point</strong> values range from -9.94°F to 78.08°F, averaging <strong>41.44°F</strong>.</p></li>
+<li><p><strong>Humidity</strong> spans from 12.74% to 100%, with a mean of <strong>62.53%</strong>.</p></li>
+</ul>
+</section>
+<section id="wind-conditions" class="level4">
+<h4 class="anchored" data-anchor-id="wind-conditions"><strong>Wind Conditions:</strong></h4>
+<ul>
+<li><p><strong>Wind Direction</strong> ranges from 0° to 360° (all compass directions), while <strong>Wind Speed</strong> averages <strong>10.52 mph</strong>, with maximum gusts reaching <strong>1048.36 mph</strong>.</p></li>
+<li><p><strong>Missing Data</strong>: Wind gust values are missing for 20,778 observations, and wind direction has 460 missing values.</p></li>
+</ul>
+</section>
+<section id="precipitation-and-visibility" class="level4">
+<h4 class="anchored" data-anchor-id="precipitation-and-visibility"><strong>Precipitation and Visibility:</strong></h4>
+<ul>
+<li><p><strong>Precipitation</strong> is minimal, with most observations at 0.0 inches and a maximum of 1.21 inches.</p></li>
+<li><p><strong>Visibility</strong> averages <strong>9.26 miles</strong>, with most observations at the maximum of 10 miles.</p></li>
+</ul>
+</section>
+<section id="pressure" class="level4">
+<h4 class="anchored" data-anchor-id="pressure"><strong>Pressure:</strong></h4>
+<ul>
+<li>Atmospheric pressure ranges from <strong>983.8 hPa</strong> to <strong>1042.1 hPa</strong>, averaging <strong>1017.9 hPa</strong>.</li>
+</ul>
+</section>
+<section id="missing-data-1" class="level4">
+<h4 class="anchored" data-anchor-id="missing-data-1"><strong>Missing Data:</strong></h4>
+<ul>
+<li>Variables with missing values include wind gust, pressure (2729 missing), and visibility.</li>
+</ul>
+</section>
+</section>
+<section id="filter-and-prepare-flight-data" class="level3">
+<h3 class="anchored" data-anchor-id="filter-and-prepare-flight-data"><strong>Filter and Prepare Flight Data</strong></h3>
+<p>We filter the dataset for flights from JFK on ExpressJet Airlines and create a synthetic key (<code>DateTime</code>) for joining with weather data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>flights <span class="sc">%&gt;%</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>( origin <span class="sc">==</span> <span class="st">"JFK"</span>, carrier <span class="sc">==</span> <span class="st">"EV"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>( <span class="at">DateTime =</span> <span class="fu">paste</span>(month,day,hour, <span class="at">sep=</span><span class="st">"."</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>( DateTime, </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>          <span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="ot">=</span> dep_delay,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>          <span class="st">`</span><span class="at">Departure Time</span><span class="st">`</span> <span class="ot">=</span> sched_dep_time) <span class="sc">%&gt;%</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">droplevels</span>() <span class="ot">-&gt;</span> df.jfk </span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>( df.jfk )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   DateTime         Departure Delay  Departure Time
+ Length:1408        Min.   :-19.00   Min.   : 559  
+ Class :character   1st Qu.: -6.00   1st Qu.: 959  
+ Mode  :character   Median : -2.00   Median :1355  
+                    Mean   : 18.52   Mean   :1237  
+                    3rd Qu.: 16.00   3rd Qu.:1900  
+                    Max.   :536.00   Max.   :1945  
+                    NA's   :82                     </code></pre>
+</div>
+</div>
+</section>
+<section id="departure-interpretation" class="level3">
+<h3 class="anchored" data-anchor-id="departure-interpretation"><strong>Departure Interpretation</strong></h3>
+<ul>
+<li><p><strong>Departure Delays</strong> range from -19 minutes (early departures) to 536 minutes, with an average delay of <strong>18.52 minutes</strong>. Most flights were slightly early or on time (median: -2 minutes).</p></li>
+<li><p><strong>Departure Times</strong> range from 5:59 AM to 7:45 PM, with an average scheduled time of <strong>12:37 PM</strong>.</p></li>
+<li><p><strong>Missing Data</strong>: There are 82 missing values in the <code>Departure Delay</code> column.</p></li>
+</ul>
+<p>Now I’ll do the same with the weather data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>weather <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>( origin <span class="sc">==</span> <span class="st">"JFK"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>( <span class="at">DateTime =</span> <span class="fu">paste</span>(month,day,hour, <span class="at">sep=</span><span class="st">"."</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>( <span class="sc">-</span>origin, <span class="sc">-</span>year, <span class="sc">-</span>month, <span class="sc">-</span>day, <span class="sc">-</span>hour, <span class="sc">-</span>time_hour ) <span class="ot">-&gt;</span> df.weather </span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>( df.weather )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      temp            dewp           humid           wind_dir    
+ Min.   :12.02   Min.   :-9.94   Min.   : 15.21   Min.   :  0.0  
+ 1st Qu.:39.92   1st Qu.:26.96   1st Qu.: 49.19   1st Qu.:140.0  
+ Median :53.96   Median :42.98   Median : 65.80   Median :220.0  
+ Mean   :54.47   Mean   :41.86   Mean   : 65.21   Mean   :204.2  
+ 3rd Qu.:69.08   3rd Qu.:57.92   3rd Qu.: 82.73   3rd Qu.:290.0  
+ Max.   :98.06   Max.   :78.08   Max.   :100.00   Max.   :360.0  
+                                                  NA's   :51     
+   wind_speed       wind_gust         precip            pressure     
+ Min.   : 0.000   Min.   :16.11   Min.   :0.000000   Min.   : 985.7  
+ 1st Qu.: 6.905   1st Qu.:23.02   1st Qu.:0.000000   1st Qu.:1013.1  
+ Median :10.357   Median :26.47   Median :0.000000   Median :1017.9  
+ Mean   :11.468   Mean   :27.56   Mean   :0.003985   Mean   :1018.2  
+ 3rd Qu.:14.960   3rd Qu.:31.07   3rd Qu.:0.000000   3rd Qu.:1023.3  
+ Max.   :42.579   Max.   :66.75   Max.   :0.660000   Max.   :1042.1  
+ NA's   :3        NA's   :7199                       NA's   :831     
+     visib          DateTime        
+ Min.   : 0.000   Length:8706       
+ 1st Qu.:10.000   Class :character  
+ Median :10.000   Mode  :character  
+ Mean   : 9.178                     
+ 3rd Qu.:10.000                     
+ Max.   :10.000                     
+                                    </code></pre>
+</div>
+</div>
+</section>
+<section id="weather-interpretation" class="level3">
+<h3 class="anchored" data-anchor-id="weather-interpretation"><strong>Weather Interpretation</strong></h3>
+<p>This summary describes weather-related variables in a dataset. Here’s what it indicates:</p>
+<ul>
+<li><p><strong>Temperature (<code>temp</code>)</strong>:</p>
+<ul>
+<li>Ranges from <strong>12.02°F</strong> to <strong>98.06°F</strong>, with an average of <strong>54.47°F</strong>.</li>
+</ul></li>
+<li><p><strong>Dew Point (<code>dewp</code>)</strong>:</p>
+<ul>
+<li>Measures atmospheric moisture, ranging from <strong>-9.94°F</strong> to <strong>78.08°F</strong>, averaging <strong>41.86°F</strong>.</li>
+</ul></li>
+<li><p><strong>Humidity (<code>humid</code>)</strong>:</p>
+<ul>
+<li>Varies between <strong>15.21%</strong> and <strong>100%</strong>, with an average of <strong>65.21%</strong>.</li>
+</ul></li>
+<li><p><strong>Wind Direction (<code>wind_dir</code>)</strong>:</p>
+<ul>
+<li>Represents the compass direction of the wind (0°–360°), with <strong>51 missing values</strong>.</li>
+</ul></li>
+<li><p><strong>Wind Speed (<code>wind_speed</code>)</strong>:</p>
+<ul>
+<li><p>Averages <strong>11.47 mph</strong>, ranging from <strong>0 mph</strong> (calm conditions) to <strong>42.58 mph</strong>.</p></li>
+<li><p><strong>Wind Gusts (<code>wind_gust</code>)</strong>: Peaks at <strong>66.75 mph</strong>, with many missing values (<strong>7199 entries</strong>).</p></li>
+</ul></li>
+<li><p><strong>Precipitation (<code>precip</code>)</strong>:</p>
+<ul>
+<li>Minimal overall, averaging <strong>0.004 inches</strong>, with a maximum of <strong>0.66 inches</strong>.</li>
+</ul></li>
+<li><p><strong>Pressure (<code>pressure</code>)</strong>:</p>
+<ul>
+<li>Atmospheric pressure ranges from <strong>985.7 hPa</strong> to <strong>1042.1 hPa</strong>, averaging <strong>1018.2 hPa</strong>, with <strong>831 missing values</strong>.</li>
+</ul></li>
+<li><p><strong>Visibility (<code>visib</code>)</strong>:</p>
+<ul>
+<li>Typically high, with most observations at the maximum of <strong>10 miles</strong> and an average of <strong>9.18 miles</strong>.</li>
+</ul></li>
+<li><p><strong>Date and Time (<code>DateTime</code>)</strong>:</p>
+<ul>
+<li>Contains <strong>8706 records</strong>, representing timestamped weather observations.</li>
+</ul></li>
+</ul>
+</section>
+<section id="merge-flight-and-weather-data" class="level3">
+<h3 class="anchored" data-anchor-id="merge-flight-and-weather-data"><strong>Merge Flight and Weather Data</strong></h3>
+<p>We merge the two datasets using the <code>DateTime</code> key to form a single dataset for analysis.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">merge</span>( df.jfk, df.weather, <span class="at">by=</span><span class="st">"DateTime"</span> ) <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>( <span class="sc">-</span>DateTime ) <span class="ot">-&gt;</span> df</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>df_clean <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> <span class="fu">drop_na</span>()</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(df_clean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Departure Delay  Departure Time      temp            dewp      
+ Min.   :-16.00   Min.   : 600   Min.   :15.98   Min.   :-7.96  
+ 1st Qu.: -6.50   1st Qu.: 959   1st Qu.:37.04   1st Qu.:13.46  
+ Median : -2.00   Median :1359   Median :46.94   Median :26.06  
+ Mean   : 17.74   Mean   :1282   Mean   :48.29   Mean   :28.25  
+ 3rd Qu.: 16.00   3rd Qu.:1428   3rd Qu.:59.00   3rd Qu.:41.00  
+ Max.   :313.00   Max.   :1945   Max.   :96.08   Max.   :73.04  
+     humid          wind_dir       wind_speed       wind_gust    
+ Min.   :18.40   Min.   : 10.0   Min.   : 8.055   Min.   :16.11  
+ 1st Qu.:35.77   1st Qu.:235.0   1st Qu.:14.960   1st Qu.:23.02  
+ Median :43.67   Median :300.0   Median :18.412   Median :26.47  
+ Mean   :48.19   Mean   :255.8   Mean   :18.541   Mean   :26.97  
+ 3rd Qu.:55.36   3rd Qu.:320.0   3rd Qu.:21.865   3rd Qu.:29.92  
+ Max.   :93.57   Max.   :360.0   Max.   :33.373   Max.   :46.03  
+     precip             pressure          visib       
+ Min.   :0.0000000   Min.   : 994.2   Min.   : 0.250  
+ 1st Qu.:0.0000000   1st Qu.:1011.3   1st Qu.:10.000  
+ Median :0.0000000   Median :1015.9   Median :10.000  
+ Mean   :0.0007623   Mean   :1016.3   Mean   : 9.692  
+ 3rd Qu.:0.0000000   3rd Qu.:1021.2   3rd Qu.:10.000  
+ Max.   :0.0500000   Max.   :1038.0   Max.   :10.000  </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="exploratory-data-analysis" class="level1">
+<h1><strong>Exploratory Data Analysis</strong></h1>
+<p>Exploratory analysis helps understand relationships between variables</p>
+<p>Question of Interest:</p>
+<p>What features of this data set may impact the departure delay for flights coming out of JFK on <em>ExpressJet</em> Airlines?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit models</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>model_temp <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp, <span class="at">data =</span> df_clean)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>model_wind <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> wind_speed, <span class="at">data =</span> df_clean)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>model_percip <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> precip, <span class="at">data =</span> df_clean)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>model_visib <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> visib, <span class="at">data =</span> df_clean)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>model_temp_wind <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> wind_speed, <span class="at">data =</span> df_clean)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>model_temp_time <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> precip, <span class="at">data =</span> df_clean)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>model_temp_visib <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> visib, <span class="at">data =</span> df_clean)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>model_wind_time <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> wind_speed <span class="sc">+</span> precip, <span class="at">data =</span> df_clean)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>model_wind_visib <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> wind_speed <span class="sc">+</span> visib, <span class="at">data =</span> df_clean)</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>model_time_visib <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> precip <span class="sc">+</span> visib, <span class="at">data =</span> df_clean)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>model_combined <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> wind_speed <span class="sc">+</span> precip <span class="sc">+</span> visib, <span class="at">data =</span> df_clean)</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="co"># List all models</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>models <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Temp + Wind"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> wind_speed, <span class="at">data =</span> df_clean),</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Temp + Time"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> precip, <span class="at">data =</span> df_clean),</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Temp + Visib"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> visib, <span class="at">data =</span> df_clean),</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Wind + Time"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> wind_speed <span class="sc">+</span> precip, <span class="at">data =</span> df_clean),</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Wind + Visib"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> wind_speed <span class="sc">+</span> visib, <span class="at">data =</span> df_clean),</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Time + Visib"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> precip <span class="sc">+</span> visib, <span class="at">data =</span> df_clean),</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Temp + Wind + Time"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> wind_speed <span class="sc">+</span> precip, <span class="at">data =</span> df_clean),</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Temp + Wind + Visib"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> wind_speed <span class="sc">+</span> visib, <span class="at">data =</span> df_clean),</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Temp + Time + Visib"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> precip <span class="sc">+</span> visib, <span class="at">data =</span> df_clean),</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Wind + Time + Visib"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> wind_speed <span class="sc">+</span> precip <span class="sc">+</span> visib, <span class="at">data =</span> df_clean),</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Full Model"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> wind_speed <span class="sc">+</span> precip <span class="sc">+</span> visib, <span class="at">data =</span> df_clean)</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare models with AIC</span></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>model_comparison <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model =</span> <span class="fu">names</span>(models),</span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">AIC =</span> <span class="fu">sapply</span>(models, AIC),</span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">R2 =</span> <span class="fu">sapply</span>(models, <span class="cf">function</span>(x) <span class="fu">summary</span>(x)<span class="sc">$</span>r.squared)</span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Rank models by AIC</span></span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>model_comparison <span class="ot">&lt;-</span> model_comparison <span class="sc">%&gt;%</span></span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(AIC) <span class="sc">%&gt;%</span></span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">delta_AIC =</span> AIC <span class="sc">-</span> <span class="fu">min</span>(AIC))</span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the comparison table</span></span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(model_comparison)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                  Model      AIC          R2 delta_AIC
+Wind + Visib               Wind + Visib 2380.776 0.068032769  0.000000
+Time + Visib               Time + Visib 2382.024 0.062802486  1.247997
+Temp + Visib               Temp + Visib 2382.059 0.062654221  1.283273
+Wind + Time + Visib Wind + Time + Visib 2382.581 0.068848099  1.804823
+Temp + Wind + Visib Temp + Wind + Visib 2382.766 0.068072616  1.990465
+Temp + Time + Visib Temp + Time + Visib 2383.861 0.063487321  3.084985
+Full Model                   Full Model 2384.574 0.068876673  3.797980
+Wind + Time                 Wind + Time 2393.674 0.012539693 12.898018
+Temp + Time                 Temp + Time 2394.413 0.009262668 13.636850
+Temp + Wind + Time   Temp + Wind + Time 2395.636 0.012710191 14.859511
+Temp + Wind                 Temp + Wind 2395.655 0.003729671 14.878779</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>best_model <span class="ot">&lt;-</span> model_wind_visib</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(model_wind_visib)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>wind_speed      visib 
+  1.005247   1.005247 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Add predictions to the dataset</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>df_clean<span class="sc">$</span>Predicted <span class="ot">&lt;-</span> <span class="fu">predict</span>(best_model, <span class="at">newdata =</span> df_clean)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot observed vs. predicted values</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_clean, <span class="fu">aes</span>(<span class="at">x =</span> Predicted, <span class="at">y =</span> <span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Observed vs. Predicted Departure Delays"</span>,</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Predicted Delay (minutes)"</span>,</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Observed Delay (minutes)"</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Regression_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Residual diagnostic plots</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))  <span class="co"># Arrange in a 2x2 grid</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(best_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Regression_files/figure-html/unnamed-chunk-7-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Histogram of residuals</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(<span class="fu">residuals</span>(best_model), <span class="at">main =</span> <span class="st">"Histogram of Residuals"</span>, <span class="at">xlab =</span> <span class="st">"Residuals"</span>, <span class="at">col =</span> <span class="st">"lightblue"</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Residuals vs. Fitted scatter plot</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">fitted</span>(best_model), <span class="fu">residuals</span>(best_model),</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Residuals vs Fitted"</span>,</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Fitted Values"</span>, <span class="at">ylab =</span> <span class="st">"Residuals"</span>, <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">pch =</span> <span class="dv">16</span>) <span class="sc">+</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>integer(0)</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Regression_files/figure-html/unnamed-chunk-7-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="best-model-wind-visib" class="level3">
+<h3 class="anchored" data-anchor-id="best-model-wind-visib"><strong>1. Best Model: <code>Wind + Visib</code></strong></h3>
+<ul>
+<li><p><strong>AIC</strong>: 2380.776 (lowest AIC in the table, making it the best model).</p></li>
+<li><p>R2R^2R2: 0.068 (6.8% of variance in <code>Departure Delay</code> is explained by the model).</p></li>
+<li><p>ΔAICΔAIC: 0.000 (indicates this is the baseline for comparison).</p></li>
+</ul>
+<p><strong>Interpretation</strong>:<br>
+<code>Wind + Visib</code> is the most parsimonious model (lowest AIC), balancing goodness of fit and simplicity. This model explains 6.8% of the variation in departure delays using only <code>Wind Speed</code> and <code>Visibility</code>.</p>
+<hr>
+</section>
+<section id="competing-models" class="level3">
+<h3 class="anchored" data-anchor-id="competing-models"><strong>2. Competing Models</strong></h3>
+<p>Models with ΔAIC≤2 2ΔAIC≤2 are considered statistically comparable to the best model:</p>
+<ul>
+<li><p><strong><code>Time + Visib</code> (</strong>ΔAIC=1.25 = 1.25ΔAIC=1.25):</p>
+<ul>
+<li><p>AIC: 2382.024</p></li>
+<li><p>R2R^2R2: 0.063 (6.3% of variance explained).</p></li>
+<li><p><strong>Interpretation</strong>: Replacing <code>Wind Speed</code> with <code>Time</code> slightly worsens the fit, though this model is still competitive.</p></li>
+</ul></li>
+<li><p><strong><code>Temp + Visib</code> (</strong>ΔAIC=1.28 = 1.28ΔAIC=1.28):</p>
+<ul>
+<li><p>AIC: 2382.059</p></li>
+<li><p>R2R^2R2: 0.063 (6.3% of variance explained).</p></li>
+<li><p><strong>Interpretation</strong>: Substituting <code>Temp</code> for <code>Wind Speed</code> also results in a slightly inferior fit but remains comparable.</p></li>
+</ul></li>
+<li><p><strong><code>Wind + Time + Visib</code> (</strong>ΔAIC=1.80 = 1.80ΔAIC=1.80):</p>
+<ul>
+<li><p>AIC: 2382.581</p></li>
+<li><p>R2R^2R2: 0.068 (6.9% of variance explained).</p></li>
+<li><p><strong>Interpretation</strong>: Adding <code>Time</code> to the <code>Wind + Visib</code> model marginally improves R2R^2R2, but the increase in complexity is not justified by the negligible gain.</p></li>
+</ul></li>
+</ul>
+<hr>
+</section>
+<section id="full-model" class="level3">
+<h3 class="anchored" data-anchor-id="full-model"><strong>3. Full Model</strong></h3>
+<ul>
+<li><p><strong>AIC</strong>: 2384.574 (ΔAIC=3.80 = 3.80ΔAIC=3.80).</p></li>
+<li><p>R2R^2R2: 0.069 (6.9% of variance explained).</p></li>
+<li><p><strong>Interpretation</strong>: While the <code>Full Model</code> explains the highest variance, the increase in AIC suggests it overfits the data compared to simpler models like <code>Wind + Visib</code>.</p></li>
+</ul>
+<hr>
+</section>
+<section id="poor-models-δaic10-10δaic10" class="level3">
+<h3 class="anchored" data-anchor-id="poor-models-δaic10-10δaic10"><strong>4. Poor Models (</strong>ΔAIC&gt;10 &gt; 10ΔAIC&gt;10)</h3>
+<ul>
+<li><p>Models like <code>Wind + Time</code> (ΔAIC=12.90 = 12.90ΔAIC=12.90) and <code>Temp + Wind</code> (ΔAIC=14.88 = 14.88ΔAIC=14.88) perform poorly.</p></li>
+<li><p>R2R^2R2 values for these models are extremely low (e.g., 1.2% or less), indicating they fail to explain meaningful variation in <code>Departure Delay</code>.</p></li>
+<li><p><strong>Interpretation</strong>: These models should be discarded as they add unnecessary complexity without improving explanatory power.</p></li>
+</ul>
+<hr>
+</section>
+<section id="general-observations" class="level3">
+<h3 class="anchored" data-anchor-id="general-observations"><strong>5. General Observations</strong></h3>
+<ol type="1">
+<li><p><strong>Parsimonious Model</strong>: The <code>Wind + Visib</code> model achieves the best balance between simplicity and performance.</p></li>
+<li><p><strong>Variance Explained</strong>:</p>
+<ul>
+<li>All models explain a small portion of the variance in <code>Departure Delay</code> (R2R^2R2 values range from 0.003 to 0.069). This suggests that external, unmeasured factors likely have a more significant impact on delays.</li>
+</ul></li>
+<li><p><strong>Effect of Adding Predictors</strong>:</p>
+<ul>
+<li>Adding predictors (e.g., <code>Time</code> or <code>Temp</code>) slightly improves R2R^2R2, but the complexity is penalized by higher AIC values.</li>
+</ul></li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1><strong>Conclusion</strong></h1>
+<ul>
+<li><p><strong>Best Model</strong>: <code>Wind + Visib</code> (lowest AIC, reasonable R2R^2R2).</p></li>
+<li><p><strong>Model Insights</strong>: <code>Wind Speed</code> and <code>Visibility</code> are the most relevant predictors of <code>Departure Delay</code>, though their combined effect is modest (R2=6.8%R^2 = 6.8%R2=6.8%).</p></li>
+<li><p><strong>Recommendation</strong>: Use the <code>Wind + Visib</code> model for interpretation and predictions, as it balances simplicity and effectiveness without unnecessary complexity.</p></li>
+</ul>
+<!-- -->
+
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb24" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Regression Homework Activity"</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Ethan Pisterman"</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "2024-11-20"</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="an">project:</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="co">  output-dir: docs</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span><span class="co"> </span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="co">    self-contained: false</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a><span class="an">abstract:</span><span class="co"> &gt;</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a><span class="co">  This analysis explores the factors influencing departure delays for flights, using regression models to evaluate the impact of predictors such as wind speed, visibility, temperature, and precipitation. Several models were compared based on Akaike Information Criterion (AIC) and variance explained (R²). The final model identified visibility and wind speed as significant predictors, though the overall </span></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a><span class="co">  variation explained by these factors is limited, suggesting other unmeasured variables may play a larger role."</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a><span class="in">```{r setup}</span></span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a><span class="in"># Load necessary libraries</span></span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a><span class="in">library( tidyverse )</span></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a><span class="in">library( nycflights13 )</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a><span class="in">library(car)</span></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a><span class="in">library(broom)</span></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a><span class="in">library(dplyr)</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a><span class="in">library(knitr)</span></span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a><span class="in">library(ggplot2)</span></span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a><span class="in">library(purrr)</span></span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a><span class="fu"># **Introduction**</span></span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>Regression analysis is a critical tool in understanding relationships between variables. This activity examines factors affecting departure delays for ExpressJet Airlines flights from JFK. Using the <span class="in">`nycflights13`</span> dataset and weather data, we:</span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Explore and prepare the data.</span>
+<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Perform linear regression analysis using <span class="in">`lm()`</span>.</span>
+<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Evaluate model fit using residuals and diagnostics.</span>
+<span id="cb24-38"><a href="#cb24-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-39"><a href="#cb24-39" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Select the best model using AIC.</span>
+<span id="cb24-40"><a href="#cb24-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-41"><a href="#cb24-41" aria-hidden="true" tabindex="-1"></a><span class="fu"># **Data Preparation**</span></span>
+<span id="cb24-42"><a href="#cb24-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-43"><a href="#cb24-43" aria-hidden="true" tabindex="-1"></a>We begin by summarizing the <span class="in">`flights`</span> and <span class="in">`weather`</span> datasets to understand their structure and content.</span>
+<span id="cb24-44"><a href="#cb24-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-47"><a href="#cb24-47" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-48"><a href="#cb24-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Summarize flights data</span></span>
+<span id="cb24-49"><a href="#cb24-49" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>( flights)</span>
+<span id="cb24-50"><a href="#cb24-50" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-51"><a href="#cb24-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-52"><a href="#cb24-52" aria-hidden="true" tabindex="-1"></a><span class="fu">### **Data Summary - flights**</span></span>
+<span id="cb24-53"><a href="#cb24-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-54"><a href="#cb24-54" aria-hidden="true" tabindex="-1"></a>The dataset provides details on flights departing from NYC airports in 2013. Key observations include:</span>
+<span id="cb24-55"><a href="#cb24-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-56"><a href="#cb24-56" aria-hidden="true" tabindex="-1"></a><span class="fu">#### **Date Information:**</span></span>
+<span id="cb24-57"><a href="#cb24-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-58"><a href="#cb24-58" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Flights span the entire year, with consistent coverage across months.</span>
+<span id="cb24-59"><a href="#cb24-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-60"><a href="#cb24-60" aria-hidden="true" tabindex="-1"></a><span class="fu">#### **Departure and Arrival Times:**</span></span>
+<span id="cb24-61"><a href="#cb24-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-62"><a href="#cb24-62" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Departure times (<span class="in">`dep_time`</span>) range from midnight to midnight, with some missing values. Scheduled departure times (<span class="in">`sched_dep_time`</span>) are evenly distributed, averaging 13:44 (early afternoon).</span>
+<span id="cb24-63"><a href="#cb24-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-64"><a href="#cb24-64" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Delays**:</span>
+<span id="cb24-65"><a href="#cb24-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-66"><a href="#cb24-66" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>Departure delays range from -43 to 1301 minutes, with an average of **12.6 minutes**, though most were slightly ahead of schedule (median: -2 minutes).</span>
+<span id="cb24-67"><a href="#cb24-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-68"><a href="#cb24-68" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>Arrival delays range from -86 to 1272 minutes, averaging **6.9 minutes** (median: -5 minutes), indicating frequent early arrivals.</span>
+<span id="cb24-69"><a href="#cb24-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-70"><a href="#cb24-70" aria-hidden="true" tabindex="-1"></a><span class="fu">#### **Flight Characteristics:**</span></span>
+<span id="cb24-71"><a href="#cb24-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-72"><a href="#cb24-72" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Flights range from 20 minutes to 11.6 hours, averaging **150.7 minutes** (\~2.5 hours), and cover distances from 17 to 4983 miles, with an average of **1040 miles**.</span>
+<span id="cb24-73"><a href="#cb24-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-74"><a href="#cb24-74" aria-hidden="true" tabindex="-1"></a><span class="fu">#### **Missing Data:**</span></span>
+<span id="cb24-75"><a href="#cb24-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-76"><a href="#cb24-76" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Variables like <span class="in">`dep_time`</span>, <span class="in">`arr_time`</span>, and <span class="in">`air_time`</span> have missing values, which need consideration during analysis.</span>
+<span id="cb24-77"><a href="#cb24-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-80"><a href="#cb24-80" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-81"><a href="#cb24-81" aria-hidden="true" tabindex="-1"></a><span class="co"># Summarize weather data</span></span>
+<span id="cb24-82"><a href="#cb24-82" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>( weather )</span>
+<span id="cb24-83"><a href="#cb24-83" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-84"><a href="#cb24-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-85"><a href="#cb24-85" aria-hidden="true" tabindex="-1"></a><span class="fu">### **Data Summary - weather**</span></span>
+<span id="cb24-86"><a href="#cb24-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-87"><a href="#cb24-87" aria-hidden="true" tabindex="-1"></a>The dataset includes weather data for 2013, providing details on various environmental conditions:</span>
+<span id="cb24-88"><a href="#cb24-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-89"><a href="#cb24-89" aria-hidden="true" tabindex="-1"></a><span class="fu">#### **Date and Time Information:**</span></span>
+<span id="cb24-90"><a href="#cb24-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-91"><a href="#cb24-91" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Observations cover the full year 2013, with hourly records ranging from midnight (0:00) to 11 PM (23:00).</span>
+<span id="cb24-92"><a href="#cb24-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-93"><a href="#cb24-93" aria-hidden="true" tabindex="-1"></a><span class="fu">#### **Temperature and Humidity:**</span></span>
+<span id="cb24-94"><a href="#cb24-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-95"><a href="#cb24-95" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Temperature** ranges from 10.94°F to 100.04°F, with an average of **55.26°F**.</span>
+<span id="cb24-96"><a href="#cb24-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-97"><a href="#cb24-97" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Dew Point** values range from -9.94°F to 78.08°F, averaging **41.44°F**.</span>
+<span id="cb24-98"><a href="#cb24-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-99"><a href="#cb24-99" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Humidity** spans from 12.74% to 100%, with a mean of **62.53%**.</span>
+<span id="cb24-100"><a href="#cb24-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-101"><a href="#cb24-101" aria-hidden="true" tabindex="-1"></a><span class="fu">#### **Wind Conditions:**</span></span>
+<span id="cb24-102"><a href="#cb24-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-103"><a href="#cb24-103" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Wind Direction** ranges from 0° to 360° (all compass directions), while **Wind Speed** averages **10.52 mph**, with maximum gusts reaching **1048.36 mph**.</span>
+<span id="cb24-104"><a href="#cb24-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-105"><a href="#cb24-105" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Missing Data**: Wind gust values are missing for 20,778 observations, and wind direction has 460 missing values.</span>
+<span id="cb24-106"><a href="#cb24-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-107"><a href="#cb24-107" aria-hidden="true" tabindex="-1"></a><span class="fu">#### **Precipitation and Visibility:**</span></span>
+<span id="cb24-108"><a href="#cb24-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-109"><a href="#cb24-109" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Precipitation** is minimal, with most observations at 0.0 inches and a maximum of 1.21 inches.</span>
+<span id="cb24-110"><a href="#cb24-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-111"><a href="#cb24-111" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Visibility** averages **9.26 miles**, with most observations at the maximum of 10 miles.</span>
+<span id="cb24-112"><a href="#cb24-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-113"><a href="#cb24-113" aria-hidden="true" tabindex="-1"></a><span class="fu">#### **Pressure:**</span></span>
+<span id="cb24-114"><a href="#cb24-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-115"><a href="#cb24-115" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Atmospheric pressure ranges from **983.8 hPa** to **1042.1 hPa**, averaging **1017.9 hPa**.</span>
+<span id="cb24-116"><a href="#cb24-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-117"><a href="#cb24-117" aria-hidden="true" tabindex="-1"></a><span class="fu">#### **Missing Data:**</span></span>
+<span id="cb24-118"><a href="#cb24-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-119"><a href="#cb24-119" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Variables with missing values include wind gust, pressure (2729 missing), and visibility.</span>
+<span id="cb24-120"><a href="#cb24-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-121"><a href="#cb24-121" aria-hidden="true" tabindex="-1"></a><span class="fu">### **Filter and Prepare Flight Data**</span></span>
+<span id="cb24-122"><a href="#cb24-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-123"><a href="#cb24-123" aria-hidden="true" tabindex="-1"></a>We filter the dataset for flights from JFK on ExpressJet Airlines and create a synthetic key (<span class="in">`DateTime`</span>) for joining with weather data.</span>
+<span id="cb24-124"><a href="#cb24-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-127"><a href="#cb24-127" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-128"><a href="#cb24-128" aria-hidden="true" tabindex="-1"></a>flights <span class="sc">%&gt;%</span></span>
+<span id="cb24-129"><a href="#cb24-129" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>( origin <span class="sc">==</span> <span class="st">"JFK"</span>, carrier <span class="sc">==</span> <span class="st">"EV"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb24-130"><a href="#cb24-130" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>( <span class="at">DateTime =</span> <span class="fu">paste</span>(month,day,hour, <span class="at">sep=</span><span class="st">"."</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-131"><a href="#cb24-131" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>( DateTime, </span>
+<span id="cb24-132"><a href="#cb24-132" aria-hidden="true" tabindex="-1"></a>          <span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="ot">=</span> dep_delay,</span>
+<span id="cb24-133"><a href="#cb24-133" aria-hidden="true" tabindex="-1"></a>          <span class="st">`</span><span class="at">Departure Time</span><span class="st">`</span> <span class="ot">=</span> sched_dep_time) <span class="sc">%&gt;%</span></span>
+<span id="cb24-134"><a href="#cb24-134" aria-hidden="true" tabindex="-1"></a>  <span class="fu">droplevels</span>() <span class="ot">-&gt;</span> df.jfk </span>
+<span id="cb24-135"><a href="#cb24-135" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>( df.jfk )</span>
+<span id="cb24-136"><a href="#cb24-136" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-137"><a href="#cb24-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-138"><a href="#cb24-138" aria-hidden="true" tabindex="-1"></a><span class="fu">### **Departure Interpretation**</span></span>
+<span id="cb24-139"><a href="#cb24-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-140"><a href="#cb24-140" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Departure Delays** range from -19 minutes (early departures) to 536 minutes, with an average delay of **18.52 minutes**. Most flights were slightly early or on time (median: -2 minutes).</span>
+<span id="cb24-141"><a href="#cb24-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-142"><a href="#cb24-142" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Departure Times** range from 5:59 AM to 7:45 PM, with an average scheduled time of **12:37 PM**.</span>
+<span id="cb24-143"><a href="#cb24-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-144"><a href="#cb24-144" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Missing Data**: There are 82 missing values in the <span class="in">`Departure Delay`</span> column.</span>
+<span id="cb24-145"><a href="#cb24-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-146"><a href="#cb24-146" aria-hidden="true" tabindex="-1"></a>Now I'll do the same with the weather data.</span>
+<span id="cb24-147"><a href="#cb24-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-150"><a href="#cb24-150" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-151"><a href="#cb24-151" aria-hidden="true" tabindex="-1"></a>weather <span class="sc">%&gt;%</span></span>
+<span id="cb24-152"><a href="#cb24-152" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>( origin <span class="sc">==</span> <span class="st">"JFK"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-153"><a href="#cb24-153" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>( <span class="at">DateTime =</span> <span class="fu">paste</span>(month,day,hour, <span class="at">sep=</span><span class="st">"."</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-154"><a href="#cb24-154" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>( <span class="sc">-</span>origin, <span class="sc">-</span>year, <span class="sc">-</span>month, <span class="sc">-</span>day, <span class="sc">-</span>hour, <span class="sc">-</span>time_hour ) <span class="ot">-&gt;</span> df.weather </span>
+<span id="cb24-155"><a href="#cb24-155" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>( df.weather )</span>
+<span id="cb24-156"><a href="#cb24-156" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-157"><a href="#cb24-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-158"><a href="#cb24-158" aria-hidden="true" tabindex="-1"></a><span class="fu">### **Weather Interpretation**</span></span>
+<span id="cb24-159"><a href="#cb24-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-160"><a href="#cb24-160" aria-hidden="true" tabindex="-1"></a>This summary describes weather-related variables in a dataset. Here's what it indicates:</span>
+<span id="cb24-161"><a href="#cb24-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-162"><a href="#cb24-162" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Temperature (`temp`)**:</span>
+<span id="cb24-163"><a href="#cb24-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-164"><a href="#cb24-164" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>Ranges from **12.02°F** to **98.06°F**, with an average of **54.47°F**.</span>
+<span id="cb24-165"><a href="#cb24-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-166"><a href="#cb24-166" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Dew Point (`dewp`)**:</span>
+<span id="cb24-167"><a href="#cb24-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-168"><a href="#cb24-168" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>Measures atmospheric moisture, ranging from **-9.94°F** to **78.08°F**, averaging **41.86°F**.</span>
+<span id="cb24-169"><a href="#cb24-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-170"><a href="#cb24-170" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Humidity (`humid`)**:</span>
+<span id="cb24-171"><a href="#cb24-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-172"><a href="#cb24-172" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>Varies between **15.21%** and **100%**, with an average of **65.21%**.</span>
+<span id="cb24-173"><a href="#cb24-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-174"><a href="#cb24-174" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Wind Direction (`wind_dir`)**:</span>
+<span id="cb24-175"><a href="#cb24-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-176"><a href="#cb24-176" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>Represents the compass direction of the wind (0°--360°), with **51 missing values**.</span>
+<span id="cb24-177"><a href="#cb24-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-178"><a href="#cb24-178" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Wind Speed (`wind_speed`)**:</span>
+<span id="cb24-179"><a href="#cb24-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-180"><a href="#cb24-180" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>Averages **11.47 mph**, ranging from **0 mph** (calm conditions) to **42.58 mph**.</span>
+<span id="cb24-181"><a href="#cb24-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-182"><a href="#cb24-182" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>**Wind Gusts (`wind_gust`)**: Peaks at **66.75 mph**, with many missing values (**7199 entries**).</span>
+<span id="cb24-183"><a href="#cb24-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-184"><a href="#cb24-184" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Precipitation (`precip`)**:</span>
+<span id="cb24-185"><a href="#cb24-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-186"><a href="#cb24-186" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>Minimal overall, averaging **0.004 inches**, with a maximum of **0.66 inches**.</span>
+<span id="cb24-187"><a href="#cb24-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-188"><a href="#cb24-188" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Pressure (`pressure`)**:</span>
+<span id="cb24-189"><a href="#cb24-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-190"><a href="#cb24-190" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>Atmospheric pressure ranges from **985.7 hPa** to **1042.1 hPa**, averaging **1018.2 hPa**, with **831 missing values**.</span>
+<span id="cb24-191"><a href="#cb24-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-192"><a href="#cb24-192" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Visibility (`visib`)**:</span>
+<span id="cb24-193"><a href="#cb24-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-194"><a href="#cb24-194" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>Typically high, with most observations at the maximum of **10 miles** and an average of **9.18 miles**.</span>
+<span id="cb24-195"><a href="#cb24-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-196"><a href="#cb24-196" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Date and Time (`DateTime`)**:</span>
+<span id="cb24-197"><a href="#cb24-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-198"><a href="#cb24-198" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>Contains **8706 records**, representing timestamped weather observations.</span>
+<span id="cb24-199"><a href="#cb24-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-200"><a href="#cb24-200" aria-hidden="true" tabindex="-1"></a><span class="fu">### **Merge Flight and Weather Data**</span></span>
+<span id="cb24-201"><a href="#cb24-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-202"><a href="#cb24-202" aria-hidden="true" tabindex="-1"></a>We merge the two datasets using the <span class="in">`DateTime`</span> key to form a single dataset for analysis.</span>
+<span id="cb24-203"><a href="#cb24-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-206"><a href="#cb24-206" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-207"><a href="#cb24-207" aria-hidden="true" tabindex="-1"></a><span class="fu">merge</span>( df.jfk, df.weather, <span class="at">by=</span><span class="st">"DateTime"</span> ) <span class="sc">%&gt;%</span></span>
+<span id="cb24-208"><a href="#cb24-208" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>( <span class="sc">-</span>DateTime ) <span class="ot">-&gt;</span> df</span>
+<span id="cb24-209"><a href="#cb24-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-210"><a href="#cb24-210" aria-hidden="true" tabindex="-1"></a>df_clean <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> <span class="fu">drop_na</span>()</span>
+<span id="cb24-211"><a href="#cb24-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-212"><a href="#cb24-212" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(df_clean)</span>
+<span id="cb24-213"><a href="#cb24-213" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-214"><a href="#cb24-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-215"><a href="#cb24-215" aria-hidden="true" tabindex="-1"></a><span class="fu"># **Exploratory Data Analysis**</span></span>
+<span id="cb24-216"><a href="#cb24-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-217"><a href="#cb24-217" aria-hidden="true" tabindex="-1"></a>Exploratory analysis helps understand relationships between variables</span>
+<span id="cb24-218"><a href="#cb24-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-219"><a href="#cb24-219" aria-hidden="true" tabindex="-1"></a>Question of Interest:</span>
+<span id="cb24-220"><a href="#cb24-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-221"><a href="#cb24-221" aria-hidden="true" tabindex="-1"></a>What features of this data set may impact the departure delay for flights coming out of JFK on *ExpressJet* Airlines?</span>
+<span id="cb24-222"><a href="#cb24-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-225"><a href="#cb24-225" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-226"><a href="#cb24-226" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit models</span></span>
+<span id="cb24-227"><a href="#cb24-227" aria-hidden="true" tabindex="-1"></a>model_temp <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp, <span class="at">data =</span> df_clean)</span>
+<span id="cb24-228"><a href="#cb24-228" aria-hidden="true" tabindex="-1"></a>model_wind <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> wind_speed, <span class="at">data =</span> df_clean)</span>
+<span id="cb24-229"><a href="#cb24-229" aria-hidden="true" tabindex="-1"></a>model_percip <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> precip, <span class="at">data =</span> df_clean)</span>
+<span id="cb24-230"><a href="#cb24-230" aria-hidden="true" tabindex="-1"></a>model_visib <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> visib, <span class="at">data =</span> df_clean)</span>
+<span id="cb24-231"><a href="#cb24-231" aria-hidden="true" tabindex="-1"></a>model_temp_wind <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> wind_speed, <span class="at">data =</span> df_clean)</span>
+<span id="cb24-232"><a href="#cb24-232" aria-hidden="true" tabindex="-1"></a>model_temp_time <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> precip, <span class="at">data =</span> df_clean)</span>
+<span id="cb24-233"><a href="#cb24-233" aria-hidden="true" tabindex="-1"></a>model_temp_visib <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> visib, <span class="at">data =</span> df_clean)</span>
+<span id="cb24-234"><a href="#cb24-234" aria-hidden="true" tabindex="-1"></a>model_wind_time <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> wind_speed <span class="sc">+</span> precip, <span class="at">data =</span> df_clean)</span>
+<span id="cb24-235"><a href="#cb24-235" aria-hidden="true" tabindex="-1"></a>model_wind_visib <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> wind_speed <span class="sc">+</span> visib, <span class="at">data =</span> df_clean)</span>
+<span id="cb24-236"><a href="#cb24-236" aria-hidden="true" tabindex="-1"></a>model_time_visib <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> precip <span class="sc">+</span> visib, <span class="at">data =</span> df_clean)</span>
+<span id="cb24-237"><a href="#cb24-237" aria-hidden="true" tabindex="-1"></a>model_combined <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> wind_speed <span class="sc">+</span> precip <span class="sc">+</span> visib, <span class="at">data =</span> df_clean)</span>
+<span id="cb24-238"><a href="#cb24-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-239"><a href="#cb24-239" aria-hidden="true" tabindex="-1"></a><span class="co"># List all models</span></span>
+<span id="cb24-240"><a href="#cb24-240" aria-hidden="true" tabindex="-1"></a>models <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb24-241"><a href="#cb24-241" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Temp + Wind"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> wind_speed, <span class="at">data =</span> df_clean),</span>
+<span id="cb24-242"><a href="#cb24-242" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Temp + Time"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> precip, <span class="at">data =</span> df_clean),</span>
+<span id="cb24-243"><a href="#cb24-243" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Temp + Visib"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> visib, <span class="at">data =</span> df_clean),</span>
+<span id="cb24-244"><a href="#cb24-244" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Wind + Time"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> wind_speed <span class="sc">+</span> precip, <span class="at">data =</span> df_clean),</span>
+<span id="cb24-245"><a href="#cb24-245" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Wind + Visib"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> wind_speed <span class="sc">+</span> visib, <span class="at">data =</span> df_clean),</span>
+<span id="cb24-246"><a href="#cb24-246" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Time + Visib"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> precip <span class="sc">+</span> visib, <span class="at">data =</span> df_clean),</span>
+<span id="cb24-247"><a href="#cb24-247" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Temp + Wind + Time"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> wind_speed <span class="sc">+</span> precip, <span class="at">data =</span> df_clean),</span>
+<span id="cb24-248"><a href="#cb24-248" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Temp + Wind + Visib"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> wind_speed <span class="sc">+</span> visib, <span class="at">data =</span> df_clean),</span>
+<span id="cb24-249"><a href="#cb24-249" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Temp + Time + Visib"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> precip <span class="sc">+</span> visib, <span class="at">data =</span> df_clean),</span>
+<span id="cb24-250"><a href="#cb24-250" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Wind + Time + Visib"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> wind_speed <span class="sc">+</span> precip <span class="sc">+</span> visib, <span class="at">data =</span> df_clean),</span>
+<span id="cb24-251"><a href="#cb24-251" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Full Model"</span> <span class="ot">=</span> <span class="fu">lm</span>(<span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span> <span class="sc">~</span> temp <span class="sc">+</span> wind_speed <span class="sc">+</span> precip <span class="sc">+</span> visib, <span class="at">data =</span> df_clean)</span>
+<span id="cb24-252"><a href="#cb24-252" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-253"><a href="#cb24-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-254"><a href="#cb24-254" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare models with AIC</span></span>
+<span id="cb24-255"><a href="#cb24-255" aria-hidden="true" tabindex="-1"></a>model_comparison <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb24-256"><a href="#cb24-256" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model =</span> <span class="fu">names</span>(models),</span>
+<span id="cb24-257"><a href="#cb24-257" aria-hidden="true" tabindex="-1"></a>  <span class="at">AIC =</span> <span class="fu">sapply</span>(models, AIC),</span>
+<span id="cb24-258"><a href="#cb24-258" aria-hidden="true" tabindex="-1"></a>  <span class="at">R2 =</span> <span class="fu">sapply</span>(models, <span class="cf">function</span>(x) <span class="fu">summary</span>(x)<span class="sc">$</span>r.squared)</span>
+<span id="cb24-259"><a href="#cb24-259" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-260"><a href="#cb24-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-261"><a href="#cb24-261" aria-hidden="true" tabindex="-1"></a><span class="co"># Rank models by AIC</span></span>
+<span id="cb24-262"><a href="#cb24-262" aria-hidden="true" tabindex="-1"></a>model_comparison <span class="ot">&lt;-</span> model_comparison <span class="sc">%&gt;%</span></span>
+<span id="cb24-263"><a href="#cb24-263" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(AIC) <span class="sc">%&gt;%</span></span>
+<span id="cb24-264"><a href="#cb24-264" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">delta_AIC =</span> AIC <span class="sc">-</span> <span class="fu">min</span>(AIC))</span>
+<span id="cb24-265"><a href="#cb24-265" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-266"><a href="#cb24-266" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the comparison table</span></span>
+<span id="cb24-267"><a href="#cb24-267" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(model_comparison)</span>
+<span id="cb24-268"><a href="#cb24-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-269"><a href="#cb24-269" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-270"><a href="#cb24-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-273"><a href="#cb24-273" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-274"><a href="#cb24-274" aria-hidden="true" tabindex="-1"></a>best_model <span class="ot">&lt;-</span> model_wind_visib</span>
+<span id="cb24-275"><a href="#cb24-275" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
+<span id="cb24-276"><a href="#cb24-276" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(model_wind_visib)</span>
+<span id="cb24-277"><a href="#cb24-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-278"><a href="#cb24-278" aria-hidden="true" tabindex="-1"></a><span class="co"># Add predictions to the dataset</span></span>
+<span id="cb24-279"><a href="#cb24-279" aria-hidden="true" tabindex="-1"></a>df_clean<span class="sc">$</span>Predicted <span class="ot">&lt;-</span> <span class="fu">predict</span>(best_model, <span class="at">newdata =</span> df_clean)</span>
+<span id="cb24-280"><a href="#cb24-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-281"><a href="#cb24-281" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot observed vs. predicted values</span></span>
+<span id="cb24-282"><a href="#cb24-282" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_clean, <span class="fu">aes</span>(<span class="at">x =</span> Predicted, <span class="at">y =</span> <span class="st">`</span><span class="at">Departure Delay</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb24-283"><a href="#cb24-283" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
+<span id="cb24-284"><a href="#cb24-284" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb24-285"><a href="#cb24-285" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb24-286"><a href="#cb24-286" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Observed vs. Predicted Departure Delays"</span>,</span>
+<span id="cb24-287"><a href="#cb24-287" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Predicted Delay (minutes)"</span>,</span>
+<span id="cb24-288"><a href="#cb24-288" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Observed Delay (minutes)"</span></span>
+<span id="cb24-289"><a href="#cb24-289" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb24-290"><a href="#cb24-290" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb24-291"><a href="#cb24-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-292"><a href="#cb24-292" aria-hidden="true" tabindex="-1"></a><span class="co"># Residual diagnostic plots</span></span>
+<span id="cb24-293"><a href="#cb24-293" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))  <span class="co"># Arrange in a 2x2 grid</span></span>
+<span id="cb24-294"><a href="#cb24-294" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(best_model)</span>
+<span id="cb24-295"><a href="#cb24-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-296"><a href="#cb24-296" aria-hidden="true" tabindex="-1"></a><span class="co"># Histogram of residuals</span></span>
+<span id="cb24-297"><a href="#cb24-297" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(<span class="fu">residuals</span>(best_model), <span class="at">main =</span> <span class="st">"Histogram of Residuals"</span>, <span class="at">xlab =</span> <span class="st">"Residuals"</span>, <span class="at">col =</span> <span class="st">"lightblue"</span>)</span>
+<span id="cb24-298"><a href="#cb24-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-299"><a href="#cb24-299" aria-hidden="true" tabindex="-1"></a><span class="co"># Residuals vs. Fitted scatter plot</span></span>
+<span id="cb24-300"><a href="#cb24-300" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">fitted</span>(best_model), <span class="fu">residuals</span>(best_model),</span>
+<span id="cb24-301"><a href="#cb24-301" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Residuals vs Fitted"</span>,</span>
+<span id="cb24-302"><a href="#cb24-302" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Fitted Values"</span>, <span class="at">ylab =</span> <span class="st">"Residuals"</span>, <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">pch =</span> <span class="dv">16</span>) <span class="sc">+</span></span>
+<span id="cb24-303"><a href="#cb24-303" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb24-304"><a href="#cb24-304" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-305"><a href="#cb24-305" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-306"><a href="#cb24-306" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-307"><a href="#cb24-307" aria-hidden="true" tabindex="-1"></a><span class="fu">### **1. Best Model: `Wind + Visib`**</span></span>
+<span id="cb24-308"><a href="#cb24-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-309"><a href="#cb24-309" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**AIC**: 2380.776 (lowest AIC in the table, making it the best model).</span>
+<span id="cb24-310"><a href="#cb24-310" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-311"><a href="#cb24-311" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>R2R\^2R2: 0.068 (6.8% of variance in <span class="in">`Departure Delay`</span> is explained by the model).</span>
+<span id="cb24-312"><a href="#cb24-312" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-313"><a href="#cb24-313" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>ΔAIC\Delta \text{AIC}ΔAIC: 0.000 (indicates this is the baseline for comparison).</span>
+<span id="cb24-314"><a href="#cb24-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-315"><a href="#cb24-315" aria-hidden="true" tabindex="-1"></a>**Interpretation**:\</span>
+<span id="cb24-316"><a href="#cb24-316" aria-hidden="true" tabindex="-1"></a><span class="in">`Wind + Visib`</span> is the most parsimonious model (lowest AIC), balancing goodness of fit and simplicity. This model explains 6.8% of the variation in departure delays using only <span class="in">`Wind Speed`</span> and <span class="in">`Visibility`</span>.</span>
+<span id="cb24-317"><a href="#cb24-317" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-318"><a href="#cb24-318" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb24-319"><a href="#cb24-319" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-320"><a href="#cb24-320" aria-hidden="true" tabindex="-1"></a><span class="fu">### **2. Competing Models**</span></span>
+<span id="cb24-321"><a href="#cb24-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-322"><a href="#cb24-322" aria-hidden="true" tabindex="-1"></a>Models with ΔAIC≤2\Delta \text{AIC} \leq 2ΔAIC≤2 are considered statistically comparable to the best model:</span>
+<span id="cb24-323"><a href="#cb24-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-324"><a href="#cb24-324" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**`Time + Visib` (**ΔAIC=1.25\Delta \text{AIC} = 1.25ΔAIC=1.25):</span>
+<span id="cb24-325"><a href="#cb24-325" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-326"><a href="#cb24-326" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>AIC: 2382.024</span>
+<span id="cb24-327"><a href="#cb24-327" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-328"><a href="#cb24-328" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>R2R\^2R2: 0.063 (6.3% of variance explained).</span>
+<span id="cb24-329"><a href="#cb24-329" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-330"><a href="#cb24-330" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>**Interpretation**: Replacing <span class="in">`Wind Speed`</span> with <span class="in">`Time`</span> slightly worsens the fit, though this model is still competitive.</span>
+<span id="cb24-331"><a href="#cb24-331" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-332"><a href="#cb24-332" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**`Temp + Visib` (**ΔAIC=1.28\Delta \text{AIC} = 1.28ΔAIC=1.28):</span>
+<span id="cb24-333"><a href="#cb24-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-334"><a href="#cb24-334" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>AIC: 2382.059</span>
+<span id="cb24-335"><a href="#cb24-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-336"><a href="#cb24-336" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>R2R\^2R2: 0.063 (6.3% of variance explained).</span>
+<span id="cb24-337"><a href="#cb24-337" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-338"><a href="#cb24-338" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>**Interpretation**: Substituting <span class="in">`Temp`</span> for <span class="in">`Wind Speed`</span> also results in a slightly inferior fit but remains comparable.</span>
+<span id="cb24-339"><a href="#cb24-339" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-340"><a href="#cb24-340" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**`Wind + Time + Visib` (**ΔAIC=1.80\Delta \text{AIC} = 1.80ΔAIC=1.80):</span>
+<span id="cb24-341"><a href="#cb24-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-342"><a href="#cb24-342" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>AIC: 2382.581</span>
+<span id="cb24-343"><a href="#cb24-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-344"><a href="#cb24-344" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>R2R\^2R2: 0.068 (6.9% of variance explained).</span>
+<span id="cb24-345"><a href="#cb24-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-346"><a href="#cb24-346" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>**Interpretation**: Adding <span class="in">`Time`</span> to the <span class="in">`Wind + Visib`</span> model marginally improves R2R\^2R2, but the increase in complexity is not justified by the negligible gain.</span>
+<span id="cb24-347"><a href="#cb24-347" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-348"><a href="#cb24-348" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb24-349"><a href="#cb24-349" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-350"><a href="#cb24-350" aria-hidden="true" tabindex="-1"></a><span class="fu">### **3. Full Model**</span></span>
+<span id="cb24-351"><a href="#cb24-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-352"><a href="#cb24-352" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**AIC**: 2384.574 (ΔAIC=3.80\Delta \text{AIC} = 3.80ΔAIC=3.80).</span>
+<span id="cb24-353"><a href="#cb24-353" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-354"><a href="#cb24-354" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>R2R\^2R2: 0.069 (6.9% of variance explained).</span>
+<span id="cb24-355"><a href="#cb24-355" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-356"><a href="#cb24-356" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Interpretation**: While the <span class="in">`Full Model`</span> explains the highest variance, the increase in AIC suggests it overfits the data compared to simpler models like <span class="in">`Wind + Visib`</span>.</span>
+<span id="cb24-357"><a href="#cb24-357" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-358"><a href="#cb24-358" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb24-359"><a href="#cb24-359" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-360"><a href="#cb24-360" aria-hidden="true" tabindex="-1"></a><span class="fu">### **4. Poor Models (**ΔAIC\&gt;10\Delta \text{AIC} \&gt; 10ΔAIC\&gt;10)</span></span>
+<span id="cb24-361"><a href="#cb24-361" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-362"><a href="#cb24-362" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Models like <span class="in">`Wind + Time`</span> (ΔAIC=12.90\Delta \text{AIC} = 12.90ΔAIC=12.90) and <span class="in">`Temp + Wind`</span> (ΔAIC=14.88\Delta \text{AIC} = 14.88ΔAIC=14.88) perform poorly.</span>
+<span id="cb24-363"><a href="#cb24-363" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-364"><a href="#cb24-364" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>R2R\^2R2 values for these models are extremely low (e.g., 1.2% or less), indicating they fail to explain meaningful variation in <span class="in">`Departure Delay`</span>.</span>
+<span id="cb24-365"><a href="#cb24-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-366"><a href="#cb24-366" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Interpretation**: These models should be discarded as they add unnecessary complexity without improving explanatory power.</span>
+<span id="cb24-367"><a href="#cb24-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-368"><a href="#cb24-368" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb24-369"><a href="#cb24-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-370"><a href="#cb24-370" aria-hidden="true" tabindex="-1"></a><span class="fu">### **5. General Observations**</span></span>
+<span id="cb24-371"><a href="#cb24-371" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-372"><a href="#cb24-372" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>**Parsimonious Model**: The <span class="in">`Wind + Visib`</span> model achieves the best balance between simplicity and performance.</span>
+<span id="cb24-373"><a href="#cb24-373" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-374"><a href="#cb24-374" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>**Variance Explained**:</span>
+<span id="cb24-375"><a href="#cb24-375" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-376"><a href="#cb24-376" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>All models explain a small portion of the variance in <span class="in">`Departure Delay`</span> (R2R\^2R2 values range from 0.003 to 0.069). This suggests that external, unmeasured factors likely have a more significant impact on delays.</span>
+<span id="cb24-377"><a href="#cb24-377" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-378"><a href="#cb24-378" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>**Effect of Adding Predictors**:</span>
+<span id="cb24-379"><a href="#cb24-379" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-380"><a href="#cb24-380" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>Adding predictors (e.g., <span class="in">`Time`</span> or <span class="in">`Temp`</span>) slightly improves R2R\^2R2, but the complexity is penalized by higher AIC values.</span>
+<span id="cb24-381"><a href="#cb24-381" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-382"><a href="#cb24-382" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb24-383"><a href="#cb24-383" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-384"><a href="#cb24-384" aria-hidden="true" tabindex="-1"></a><span class="fu"># **Conclusion**</span></span>
+<span id="cb24-385"><a href="#cb24-385" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-386"><a href="#cb24-386" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Best Model**: <span class="in">`Wind + Visib`</span> (lowest AIC, reasonable R2R\^2R2).</span>
+<span id="cb24-387"><a href="#cb24-387" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-388"><a href="#cb24-388" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Model Insights**: <span class="in">`Wind Speed`</span> and <span class="in">`Visibility`</span> are the most relevant predictors of <span class="in">`Departure Delay`</span>, though their combined effect is modest (R2=6.8%R\^2 = 6.8%R2=6.8%).</span>
+<span id="cb24-389"><a href="#cb24-389" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-390"><a href="#cb24-390" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Recommendation**: Use the <span class="in">`Wind + Visib`</span> model for interpretation and predictions, as it balances simplicity and effectiveness without unnecessary complexity.</span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

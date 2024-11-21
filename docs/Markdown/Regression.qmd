@@ -1,7 +1,7 @@
 ---
 title: "Regression Homework Activity"
 author: "Ethan Pisterman"
-date: ""
+date: "2024-11-20"
 project:
   output-dir: docs
 format: 
@@ -9,14 +9,12 @@ format:
     code-tools: true
     toc: true
     self-contained: false
-    abstract: "This analysis explores the factors influencing departure delays for flights, using regression models 
-  to evaluate the impact of predictors such as wind speed, visibility, temperature, and precipitation. 
-  Several models were compared based on Akaike Information Criterion (AIC) and variance explained (R²). 
-  The final model identified visibility and wind speed as significant predictors, though the overall 
+abstract: >
+  This analysis explores the factors influencing departure delays for flights, using regression models to evaluate the impact of predictors such as wind speed, visibility, temperature, and precipitation. Several models were compared based on Akaike Information Criterion (AIC) and variance explained (R²). The final model identified visibility and wind speed as significant predictors, though the overall 
   variation explained by these factors is limited, suggesting other unmeasured variables may play a larger role."
 ---
 
-```{r setup, include=FALSE}
+```{r setup}
 # Load necessary libraries
 library( tidyverse )
 library( nycflights13 )
