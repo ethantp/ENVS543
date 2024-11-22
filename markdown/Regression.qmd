@@ -11,10 +11,11 @@ format:
     self-contained: false
 abstract: >
   This analysis explores the factors influencing departure delays for flights, using regression models to evaluate the impact of predictors such as wind speed, visibility, temperature, and precipitation. Several models were compared based on Akaike Information Criterion (AIC) and variance explained (R²). The final model identified visibility and wind speed as significant predictors, though the overall 
-  variation explained by these factors is limited, suggesting other unmeasured variables may play a larger role."
+  variation explained by these factors is limited, suggesting other unmeasured variables may play a larger role.
+output-file: index.html
 ---
 
-```{r setup}
+```{r setup, warning= FALSE, message= FALSE}
 # Load necessary libraries
 library( tidyverse )
 library( nycflights13 )
@@ -24,6 +25,7 @@ library(dplyr)
 library(knitr)
 library(ggplot2)
 library(purrr)
+library(car)
 ```
 
 # **Introduction**
@@ -258,9 +260,8 @@ print(model_comparison)
 ```
 
 ```{r}
-
 best_model <- model_wind_visib
-library(car)
+
 vif(model_wind_visib)
 
 # Add predictions to the dataset
@@ -276,11 +277,17 @@ ggplot(df_clean, aes(x = Predicted, y = `Departure Delay`)) +
     y = "Observed Delay (minutes)"
   ) +
   theme_minimal()
+```
 
+
+```{r}
 # Residual diagnostic plots
-par(mfrow = c(2, 2))  # Arrange in a 2x2 grid
+par(mfrow = c(1, 1))  # Arrange in a 2x2 grid
 plot(best_model)
+```
 
+
+```{r}
 # Histogram of residuals
 hist(residuals(best_model), main = "Histogram of Residuals", xlab = "Residuals", col = "lightblue")
 

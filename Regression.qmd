@@ -1,19 +1,21 @@
 ---
 title: "Regression Homework Activity"
 author: "Ethan Pisterman"
-date: ""
+date: "2024-11-20"
+project:
+  output-dir: docs
 format: 
   html:
     code-tools: true
-    toc: false
-    abstract: "This analysis explores the factors influencing departure delays for flights, using regression models 
-  to evaluate the impact of predictors such as wind speed, visibility, temperature, and precipitation. 
-  Several models were compared based on Akaike Information Criterion (AIC) and variance explained (R²). 
-  The final model identified visibility and wind speed as significant predictors, though the overall 
-  variation explained by these factors is limited, suggesting other unmeasured variables may play a larger role."
+    toc: true
+    self-contained: false
+abstract: >
+  This analysis explores the factors influencing departure delays for flights, using regression models to evaluate the impact of predictors such as wind speed, visibility, temperature, and precipitation. Several models were compared based on Akaike Information Criterion (AIC) and variance explained (R²). The final model identified visibility and wind speed as significant predictors, though the overall 
+  variation explained by these factors is limited, suggesting other unmeasured variables may play a larger role.
+output-file: index.html
 ---
 
-```{r setup, include=FALSE}
+```{r setup}
 # Load necessary libraries
 library( tidyverse )
 library( nycflights13 )
@@ -23,9 +25,8 @@ library(dplyr)
 library(knitr)
 library(ggplot2)
 library(purrr)
+library(car)
 ```
-
-
 
 # **Introduction**
 
@@ -43,14 +44,10 @@ Regression analysis is a critical tool in understanding relationships between va
 
 We begin by summarizing the `flights` and `weather` datasets to understand their structure and content.
 
-
-
 ```{r}
 # Summarize flights data
 summary( flights)
 ```
-
-
 
 ### **Data Summary - flights**
 
@@ -78,14 +75,10 @@ The dataset provides details on flights departing from NYC airports in 2013. Key
 
 -   Variables like `dep_time`, `arr_time`, and `air_time` have missing values, which need consideration during analysis.
 
-
-
 ```{r}
 # Summarize weather data
 summary( weather )
 ```
-
-
 
 ### **Data Summary - weather**
 
@@ -127,8 +120,6 @@ The dataset includes weather data for 2013, providing details on various environ
 
 We filter the dataset for flights from JFK on ExpressJet Airlines and create a synthetic key (`DateTime`) for joining with weather data.
 
-
-
 ```{r}
 flights %>%
   filter( origin == "JFK", carrier == "EV") %>%
@@ -140,8 +131,6 @@ flights %>%
 summary( df.jfk )
 ```
 
-
-
 ### **Departure Interpretation**
 
 -   **Departure Delays** range from -19 minutes (early departures) to 536 minutes, with an average delay of **18.52 minutes**. Most flights were slightly early or on time (median: -2 minutes).
@@ -152,8 +141,6 @@ summary( df.jfk )
 
 Now I'll do the same with the weather data.
 
-
-
 ```{r}
 weather %>%
   filter( origin == "JFK") %>% 
@@ -161,8 +148,6 @@ weather %>%
   select( -origin, -year, -month, -day, -hour, -time_hour ) -> df.weather 
 summary( df.weather )
 ```
-
-
 
 ### **Weather Interpretation**
 
@@ -210,8 +195,6 @@ This summary describes weather-related variables in a dataset. Here's what it in
 
 We merge the two datasets using the `DateTime` key to form a single dataset for analysis.
 
-
-
 ```{r}
 merge( df.jfk, df.weather, by="DateTime" ) %>%
   select( -DateTime ) -> df
@@ -221,8 +204,6 @@ df_clean <- df %>% drop_na()
 summary(df_clean)
 ```
 
-
-
 # **Exploratory Data Analysis**
 
 Exploratory analysis helps understand relationships between variables
@@ -230,8 +211,6 @@ Exploratory analysis helps understand relationships between variables
 Question of Interest:
 
 What features of this data set may impact the departure delay for flights coming out of JFK on *ExpressJet* Airlines?
-
-
 
 ```{r}
 
@@ -281,9 +260,8 @@ print(model_comparison)
 ```
 
 ```{r}
-
 best_model <- model_wind_visib
-library(car)
+
 vif(model_wind_visib)
 
 # Add predictions to the dataset
@@ -299,11 +277,17 @@ ggplot(df_clean, aes(x = Predicted, y = `Departure Delay`)) +
     y = "Observed Delay (minutes)"
   ) +
   theme_minimal()
+```
 
+
+```{r}
 # Residual diagnostic plots
-par(mfrow = c(2, 2))  # Arrange in a 2x2 grid
+par(mfrow = c(1, 1))  # Arrange in a 2x2 grid
 plot(best_model)
+```
 
+
+```{r}
 # Histogram of residuals
 hist(residuals(best_model), main = "Histogram of Residuals", xlab = "Residuals", col = "lightblue")
 
@@ -314,8 +298,6 @@ plot(fitted(best_model), residuals(best_model),
 abline(h = 0, col = "red", lty = 2)
 
 ```
-
-
 
 ### **1. Best Model: `Wind + Visib`**
 
@@ -401,4 +383,3 @@ Models with ΔAIC≤2\Delta \text{AIC} \leq 2ΔAIC≤2 are considered statistica
 -   **Model Insights**: `Wind Speed` and `Visibility` are the most relevant predictors of `Departure Delay`, though their combined effect is modest (R2=6.8%R\^2 = 6.8%R2=6.8%).
 
 -   **Recommendation**: Use the `Wind + Visib` model for interpretation and predictions, as it balances simplicity and effectiveness without unnecessary complexity.
-
