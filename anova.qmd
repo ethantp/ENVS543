@@ -1,0 +1,345 @@
+---
+title: "Analysis of Variance"
+subtitle: "In Class Activity"
+author: "Ethan Pisterman"
+execute: 
+  echo: true
+format: 
+  html:
+    code-tools: true
+    toc: false
+abstract: > 
+ This analysis examines the effects of diet and gender on weight loss using ANOVA models. Diet significantly impacts weight loss, with Diet 3 producing the greatest results. Gender alone has no meaningful effect, but males on Diet 3 show significantly higher weight loss. The interaction model explains 20% of the variation, confirming diet as the strongest predictor of weight loss.
+---
+
+### Introduction
+
+This analysis investigates the effects of diet and gender on weight loss over six weeks using data from 76 participants. The dataset includes demographic information (age, height, and gender), initial and post-diet weights, and one of three diet plans. Through exploratory data analysis and statistical modeling, we aim to determine whether diet significantly affects weight loss, whether gender plays a role, and if there is an interaction between diet and gender that impacts results. Using one-way and two-way ANOVA models, along with post-hoc tests, this study identifies key patterns and explains how much of the variability in weight loss is attributable to these factors. There are 76 observations of individuals with the following characteristics:
+
+-   Gender (0/1)
+-   Age (earth years. 🤓)
+-   Height (cm)
+-   Pre.weight & weight6weeks (kg)
+-   Diet (1,2,3)
+
+The data are located as a CSV file named `DietData.csv` linked from the Canvas page. Load the data in and format things so they look correctly to you.
+
+```{r setup, warning = FALSE, message = FALSE}
+# load the data here
+data <- read.csv("~/Desktop/ENVS  543/ENVS543/dietdata.csv")
+
+library(ggplot2)
+library(GGally)
+library(tidyverse)
+
+```
+
+## Exploratory Data Analysis
+
+One of the first things to do is to look at the data and see if there are any obvious things. Go ahead and explore these data visually. What do you see?
+
+```{r}
+# Data visualization
+str(data)
+summary(data)
+
+# Check for missing values
+sum(is.na(data))
+
+
+data %>%
+  select(gender, Age, Height, pre.weight, weight6weeks, Diet) -> pair_comp
+ggpairs(pair_comp)
+```
+
+### Key Insights from Output:
+
+1.  **Age**: The participants' ages range from 16 to 60, with a median age of 39, representing a middle-aged group overall.
+
+2.  **Height**: Heights range from 141 cm to 201 cm, with an average height of about 171 cm, showing a wide variation in stature.
+
+3.  **Pre.weight and Weight Change**:
+
+    -   Pre-experiment weights range from 58 kg to 88 kg, with a mean of 72.3 kg.
+
+    -   Post-experiment weights (6 weeks later) are slightly lower on average (mean = 68.3 kg), suggesting a potential weight loss trend.
+
+4.  **Diet Groups**: Participants are evenly distributed across the three diet types (mean \~ 2.0), allowing for fair comparisons between groups.
+
+5.  **Gender**: Around 43% of participants are coded as `1`, suggesting a near-balanced gender distribution.
+
+## Estimating Mean Values
+
+Make a table of Weight Loss by gender and diet.
+
+```{r, message = FALSE}
+# Table output
+data %>% 
+  select(gender, Age, pre.weight, Diet, weight6weeks) -> weight_loss
+weight_loss %>%
+  mutate(loss = pre.weight - weight6weeks) -> weight_loss
+
+summary_table <- weight_loss %>%
+  group_by(gender, Diet) %>%
+  summarize(mean_loss = mean(loss, na.rm = TRUE)) %>%
+  ungroup()
+
+knitr::kable(summary_table, caption = "Mean Weight Loss by Gender and Diet")
+```
+
+### Key Insights:
+
+1.  **Gender Differences**:
+
+    -   Gender `0` (e.g., Male) and Gender `1` (e.g., Female) show varying weight loss trends across diets, with females generally losing more weight on average in most diets.
+
+        -   Example: Diet 2 (Male: 2.61 kg vs. Female: 4.11 kg).
+
+2.  **Most Effective Diets**:
+
+    -   **Gender `0`**: Diet 3 has the highest mean weight loss (5.88 kg).
+
+    -   **Gender `1`**: Diet 3 also shows strong results (4.23 kg), but Diet 2 is close (4.11 kg).
+
+3.  **Least Effective Diets**:
+
+    -   **Gender `0`**: Diet 2 results in the lowest mean weight loss (2.61 kg).
+
+    -   **Gender `1`**: Diet 1 has the lowest mean weight loss (3.65 kg).
+
+## 1-Way Analysis of Variance
+
+*Diet Issues:*
+
+The underlying linear model.
+
+$$
+y_{ij} = \mu + \tau_{Diet, i} + \epsilon_j
+$$
+
+Test the null hypothesis, $H_O:$ *There is no effect of diet on weight loss* (e.g., $\tau_{Diet-1} = \tau_{Diet-2} = \tau_{Diet-3} = 0.0$). Is there evidence for one diet producing more weight loss than the others? Create an `aov` analysis and assign it to the variable `fit.diet` and examine its contents.
+
+```{r}
+# Define model
+fit.diet <- aov(loss ~ factor(Diet), data = weight_loss)
+fit.diet
+
+anova(fit.diet)
+```
+
+**ANOVA Results:**
+
+1.  **Evidence Against the Null Hypothesis**:
+
+    -   The p-value for the `factor(Diet)` term is **0.0066**, which is smaller than the significance threshold of 0.05.
+
+    -   This provides strong evidence to reject H0H_0H0​. Hence, there is a statistically significant difference in weight loss among the diet groups.
+
+2.  **Variance Partitioning**:
+
+    -   The Sum of Squares for `factor(Diet)` is **60.53**, while the residual variance is larger (**410.40**). This indicates that while diet contributes to differences in weight loss, individual variability or other factors explain a larger portion of the variation.
+
+3.  **F-Statistic**:
+
+    -   The F-value of **5.38** quantifies the ratio of diet-related variance to unexplained variance. The high value further supports the significance of diet as a factor.
+
+4.  **Residual Standard Error**:
+
+    -   The residual standard error of **2.37** indicates the average deviation of observed weight loss values from the model predictions.
+
+Are they all significantly different? Try the `TukeyHSD()` Interpret the results.
+
+```{r}
+# Posthoc test
+tuk <- TukeyHSD(fit.diet)
+tuk
+```
+
+**Post-hoc Summary:**
+
+1.  **Comparison 2 vs. 1**:
+
+    -   **Difference**: -0.032
+
+    -   **Confidence Interval**: \[-1.653, 1.589\]
+
+    -   **Adjusted p-value**: 0.999
+
+    -   **Conclusion**: No significant difference in weight loss between Diet 2 and Diet 1.
+
+2.  **Comparison 3 vs. 1**:
+
+    -   **Difference**: 1.848
+
+    -   **Confidence Interval**: \[0.257, 3.440\]
+
+    -   **Adjusted p-value**: 0.019
+
+    -   **Conclusion**: Diet 3 results in significantly greater weight loss compared to Diet 1.
+
+3.  **Comparison 3 vs. 2**:
+
+    -   **Difference**: 1.880
+
+    -   **Confidence Interval**: \[0.306, 3.455\]
+
+    -   **Adjusted p-value**: 0.015
+
+    -   **Conclusion**: Diet 3 also results in significantly greater weight loss compared to Diet 2.
+
+**Key Takeaway**:
+
+-   Diet 3 shows significantly higher weight loss than both Diet 1 and Diet 2, while Diets 1 and 2 do not differ significantly from each other.
+
+How much of the variation is explained? If you notice when you do a summary from a `lm()` (regression) model, it gives you the $R^2$ values directly (remember $R^2 = \frac{SS_{model}}{SS_{Error}}$). Does `summary()` of your `aov` model give you that?
+
+```{r}
+# How much variance?
+lm(formula = weight_loss$loss ~ weight_loss$Diet, data = weight_loss) -> diet_lm
+summary(diet_lm)
+```
+
+### Summary:
+
+-   **Diet is a significant predictor** of weight loss, with each diet level contributing approximately 0.943 kg additional weight loss.
+
+-   The model explains a small but statistically significant portion of the variability in weight loss (R\^2 \approx 9.6%).
+
+-   Residuals indicate variability not captured by the model, suggesting other factors may also play a role.
+
+Since I asked the question, the answer is probably no. Why does it not do this? Probably for historical reasons, which are a bit of a pain in the backside. That being said, there are some `tidy` ways to fix this issue. I'm going to use the `broom` package which allows us to clean up (or tidy if you will) the model objects. This will take the model object and pull out *all* the ANOVA table stuff and put it into a `tibble`.
+
+```{r}
+ library( broom ) 
+# use your model fit next (I called mine fit.diet)
+tidy_diet <- tidy( fit.diet )
+tidy_diet
+```
+
+Now, since it is all easily accessible, we can calculate the $R^2$ from the new model output.
+
+```{r}
+# Estimate the variance explained from the raw sums of squares
+ r2_Diet <- tidy_diet$sumsq[1] / sum( tidy_diet$sumsq )
+ r2_Diet 
+```
+
+#### Key Insights:
+
+1.  **Variance Explained**:
+
+    -   The `Diet` factor explains about **12.85%** of the total variation in weight loss among participants.
+
+2.  **Significance**:
+
+    -   While statistically significant (from ANOVA results, p=0.0066), the R\^2 value is relatively low, indicating that `Diet` alone is not a strong predictor of weight loss.
+
+3.  **Unexplained Variance**:
+
+    -   The remaining **87.15%** of the variation in weight loss is attributed to other factors (e.g., individual differences, measurement error) or residual variance not explained by the model.
+
+*Gender:*
+
+The underlying linear model.
+
+$y_{ij} = \mu + \tau_{gender, i} + \epsilon_j$
+
+Independent of the diet, test the null hypothesis $H_O:$ *There is no difference in weight loss between genders* (e.g., \$\tau\*{gender-0} =\* \tau{gender-2} = 0.0 \$). Is there evidence for one gender being significantly different than another? How much of the variation is explained (another $R^2$ by gender)?
+
+```{r}
+
+gender_wtLoss <- weight_loss %>% select(gender, Diet, loss) %>%
+  mutate(gender = as.factor(gender))
+
+fit.gender <- aov(weight_loss$loss ~ weight_loss$gender, data = weight_loss)
+summary(fit.gender)
+tidy_gender <- tidy(fit.gender)
+
+lm(formula = weight_loss$loss ~ weight_loss$gender, data = weight_loss) -> gender.lm
+summary(gender.lm)
+```
+
+### Gender Differences in Weight Loss
+
+1.  **Gender Effect**:
+
+    -   The difference in weight loss between genders is **0.122 kg**, with a p=0.835. This is not statistically significant.
+
+2.  **Model Fit**:
+
+    -   R\^2 = 0.00059: Gender explains **0.059%** of the variation in weight loss, which is negligible.
+
+    -   Residual standard error: **2.522**, indicating substantial unexplained variability.
+
+3.  **Conclusion**:
+
+    -   There is no evidence that gender has a meaningful impact on weight loss. Other factors likely drive the observed variation.
+
+# Do genders respond differently to diets?
+
+$y_{ijk} = \mu + \tau_{Diet,i} + \tau_{gender,j} + \epsilon_k$
+
+So here we do something a bit different. We want to simultaneously ask the following questions:
+
+-   Do diets influence weight loss?
+-   Do genders influence weight loss?
+-   Is there an interaction where different genders respond differently to different diets?
+
+In $R$, this is done as:
+
+```{r}
+# diet model
+fit.diet
+
+tidy_diet
+```
+
+```{r}
+# gender model
+fit.gender
+
+tidy_gender
+```
+
+```{r}
+# interaction model
+weight_loss$interaction <- interaction(weight_loss$gender, weight_loss$Diet)
+
+model_interaction <- lm(loss ~ interaction(gender, Diet), data = weight_loss)
+
+
+summary(model_interaction)
+
+```
+
+### Gender and Diet Interaction on Weight Loss
+
+1.  **Baseline Effect**:
+
+    -   The intercept (3.05) represents the mean weight loss for `gender = 0` and `Diet = 1`. It is significant (p\<0.001).
+
+2.  **Significant Interaction**:
+
+    -   **Gender = 0, Diet = 3** shows a significant additional effect (2.833, p=0.002), indicating that this group has a significantly different weight loss compared to the baseline.
+
+3.  **Non-Significant Interactions**:
+
+    -   All other interaction terms are not significant (p\>0.05), suggesting no strong evidence of meaningful differences in weight loss for other gender-diet combinations.
+
+4.  **Model Fit**:
+
+    -   R\^2 = 0.20: The model explains **20%** of the variation in weight loss.
+
+    -   **Residual Standard Error**: 2.319, reflecting moderate variability in residuals.
+
+5.  **Conclusion**:
+
+    -   While the overall model is significant (F=3.519, p=0.0068), the interaction effects are weak except for `gender = 0, Diet = 3`. Diet appears to have a stronger influence on weight loss than gender.
+
+```{r}
+# best model variance explained
+```
+
+# Which Model is Best?
+
+The analysis revealed that diet significantly influences weight loss, with Diet 3 being the most effective for both genders. Gender alone does not have a meaningful impact on weight loss, explaining less than 0.1% of the variation, but there is a modest interaction effect between gender and diet. Specifically, males on Diet 3 experienced significantly greater weight loss compared to other groups. The interaction model, which considers both diet and gender, explains 20% of the variation in weight loss, making it the most informative. However, substantial unexplained variability indicates that other factors, such as age or activity levels, may also contribute to weight loss outcomes. Overall, diet remains the strongest predictor, and focusing on Diet 3 yields the best results across groups.
